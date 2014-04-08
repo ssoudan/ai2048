@@ -469,11 +469,10 @@
 ;   (reduce + (flatten 
 ;               (list (for [x (range board-size) y (range board-size)]
 ;                 (let [val (get-element board x y)]
-;                  (* 
+                 
 ;                    (* ((coef x) y) (power 2 val))
-;                    ; kill the 2
-;                    (- val 2)
-;                    ))))))))
+                 
+;                    )))))))
 
 
 (defn optimize-move [board]   
@@ -503,57 +502,206 @@
 ; }
 
 
-; (defn more-options [board score direction]  
-;   (let [options (options-move board)]
-;     (hash-map :direction direction
-;               :score score
-;               :board board
-;               :options (into {} (map #(hash-map (:direction %) %) (options-move board))))))
+; (defn make-options [board] 
+;   (into {} (map (fn [x] (hash-map (:direction x) x)) (options-move board))))
 
 (defn make-options [board] 
-  (into {} (map (fn [x] (hash-map (:direction x) x)) (options-move board))))
+  (into {} (map (fn [x] (hash-map (:direction x) (assoc x :adv-options (board-blank-elements (:board x))))) (options-move board))))
 
 (make-options test-board)
 
+; (defn build [n board]
+;     (when (pos? n)
+;       (let [options (make-options board)]
+;         (assoc-in 
+;           (assoc-in 
+;             (assoc-in 
+;               (assoc-in 
+;                 options 
+;                 [:left :options] 
+;                 (build (dec n) (get-in options [:left :board]))) 
+;                 [:right :options] 
+;                 (build (dec n) (get-in options [:right :board]))) 
+;                 [:up :options] 
+;                 (build (dec n) (get-in options [:up :board]))) 
+;                 [:down :options] 
+;                 (build (dec n) (get-in options [:down :board]))) 
+;         )))
+
 (defn build [n board]
     (when (pos? n)
-      (when-let [options (make-options board)]
+      (let [options (make-options board)]
         (assoc-in 
           (assoc-in 
             (assoc-in 
               (assoc-in 
                 options 
                 [:left :options] 
-                (build (dec n) (get-in options [:left :board]))) 
+                (into [] (filter identity (map #(build (dec n) (set-element (get-in options [:left :board]) (:x %) (:y %) 2)) (get-in options [:left :adv-options]))))) 
                 [:right :options] 
-                (build (dec n) (get-in options [:right :board]))) 
+                (into [] (filter identity (map #(build (dec n) (set-element (get-in options [:right :board]) (:x %) (:y %) 2)) (get-in options [:right :adv-options]))))) 
                 [:up :options] 
-                (build (dec n) (get-in options [:up :board]))) 
+                (into [] (filter identity (map #(build (dec n) (set-element (get-in options [:up :board]) (:x %) (:y %) 2)) (get-in options [:up :adv-options]))))) 
                 [:down :options] 
-                (build (dec n) (get-in options [:down :board]))) 
+                (into [] (filter identity (map #(build (dec n) (set-element (get-in options [:down :board]) (:x %) (:y %) 2)) (get-in options [:down :adv-options]))))) 
         )))
 
-(build 3 [[64 8 32 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]])
+(build 3 [[0 8 32 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]])
+
+{:options 
+ [ 
+  {:up {:options [], :adv-options ({:x 2, :y 3} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[8 32 32 4] [4 8 16 32] [2 4 2 0] [0 0 0 0]], :score 5, :direction :up}, :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 3}), :board [[0 0 0 0] [8 32 32 0] [4 8 16 4] [2 4 2 32]], :score 5, :direction :down}, :left {:options [], :adv-options ({:x 0, :y 3} {:x 2, :y 3} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[8 64 4 0] [4 8 16 32] [2 4 2 0] [0 0 0 0]], :score 6, :direction :left}, :right {:options [], :adv-options ({:x 0, :y 0} {:x 2, :y 0} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[0 8 64 4] [4 8 16 32] [0 2 4 2] [0 0 0 0]], :score 6, :direction :right}}
+  {:up {:options [], :adv-options ({:x 2, :y 2} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[8 32 32 4] [4 8 16 32] [2 4 0 2] [0 0 0 0]], :score 5, :direction :up}, :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 2}), :board [[0 0 0 0] [8 32 0 4] [4 8 32 32] [2 4 16 2]], :score 5, :direction :down}, :left {:options [], :adv-options ({:x 0, :y 3} {:x 2, :y 3} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[8 64 4 0] [4 8 16 32] [2 4 2 0] [0 0 0 0]], :score 6, :direction :left}, :right {:options [], :adv-options ({:x 0, :y 0} {:x 2, :y 0} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[0 8 64 4] [4 8 16 32] [0 2 4 2] [0 0 0 0]], :score 6, :direction :right}} {:up {:options [], :adv-options ({:x 2, :y 2} {:x 2, :y 3} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[8 32 32 4] [4 8 16 32] [4 4 0 0] [0 0 0 0]], :score 6, :direction :up}, :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 2} {:x 1, :y 3}), :board [[0 0 0 0] [8 32 0 0] [4 8 32 4] [4 4 16 32]], :score 6, :direction :down}, :left {:options [], :adv-options ({:x 0, :y 3} {:x 2, :y 2} {:x 2, :y 3} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[8 64 4 0] [4 8 16 32] [2 4 0 0] [2 0 0 0]], :score 6, :direction :left}, :right {:options [], :adv-options ({:x 0, :y 0} {:x 2, :y 0} {:x 2, :y 1} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2}), :board [[0 8 64 4] [4 8 16 32] [0 0 2 4] [0 0 0 2]], :score 6, :direction :right}} {:up {:options [], :adv-options ({:x 2, :y 2} {:x 2, :y 3} {:x 3, :y 0} {:x 3, :y 2} {:x 3, :y 3}), :board [[8 32 32 4] [4 8 16 32] [2 4 0 0] [0 2 0 0]], :score 5, :direction :up}, :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 2} {:x 1, :y 3}), :board [[0 32 0 0] [8 8 0 0] [4 4 32 4] [2 2 16 32]], :score 5, :direction :down}, :left {:options [], :adv-options ({:x 0, :y 3} {:x 2, :y 2} {:x 2, :y 3} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[8 64 4 0] [4 8 16 32] [2 4 0 0] [2 0 0 0]], :score 6, :direction :left}, :right {:options [], :adv-options ({:x 0, :y 0} {:x 2, :y 0} {:x 2, :y 1} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2}), :board [[0 8 64 4] [4 8 16 32] [0 0 2 4] [0 0 0 2]], :score 6, :direction :right}} {:up {:options [], :adv-options ({:x 2, :y 3} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[8 32 32 4] [4 8 16 32] [2 4 2 0] [0 0 0 0]], :score 5, :direction :up}, :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 3}), :board [[0 0 0 0] [8 32 32 0] [4 8 16 4] [2 4 2 32]], :score 5, :direction :down}, :left {:options [], :adv-options ({:x 0, :y 3} {:x 2, :y 2} {:x 2, :y 3} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[8 64 4 0] [4 8 16 32] [2 4 0 0] [2 0 0 0]], :score 6, :direction :left}, :right {:options [], :adv-options ({:x 0, :y 0} {:x 2, :y 0} {:x 2, :y 1} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2}), :board [[0 8 64 4] [4 8 16 32] [0 0 2 4] [0 0 0 2]], :score 6, :direction :right}} {:up {:options [], :adv-options ({:x 2, :y 2} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[8 32 32 4] [4 8 16 32] [2 4 0 2] [0 0 0 0]], :score 5, :direction :up}, :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 2}), :board [[0 0 0 0] [8 32 0 4] [4 8 32 32] [2 4 16 2]], :score 5, :direction :down}, :left {:options [], :adv-options ({:x 0, :y 3} {:x 2, :y 2} {:x 2, :y 3} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[8 64 4 0] [4 8 16 32] [2 4 0 0] [2 0 0 0]], :score 6, :direction :left}, :right {:options [], :adv-options ({:x 0, :y 0} {:x 2, :y 0} {:x 2, :y 1} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2}), :board [[0 8 64 4] [4 8 16 32] [0 0 2 4] [0 0 0 2]], :score 6, :direction :right}}], :adv-options ({:x 2, :y 2} {:x 2, :y 3} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[8 32 32 4] [4 8 16 32] [2 4 0 0] [0 0 0 0]], :score 6, :direction :up}
+
+{:left 
+ {:options [
+            {:left 
+             {:options 
+              [nil], 
+              :adv-options (), 
+              :board [[64 8 32 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]], 
+              :score 0, 
+              :direction :left}, 
+             :right 
+             {:options [nil], 
+              :adv-options (), 
+              :board [[64 8 32 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]], 
+              :score 0, 
+              :direction :right}, 
+             :up 
+             {:options [nil], 
+              :adv-options ({:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), 
+              :board [[64 8 32 16] [4 8 16 2] [2 4 16 32] [0 0 0 0]], 
+              :score 4, 
+              :direction :up}, 
+             :down 
+             {:options [nil], 
+              :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3}), 
+              :board [[0 0 0 0] [64 8 32 16] [2 4 16 2] [4 8 16 32]], 
+              :score 4, 
+              :direction :down}}], 
+  :adv-options (), 
+  :board [[64 8 32 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]], 
+  :score 0, 
+  :direction :left}, 
+ :right 
+ {:options [
+            {:left 
+             {:options [nil], 
+              :adv-options (), 
+              :board [[64 8 32 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]], 
+              :score 0, 
+              :direction :left}, 
+             :right 
+             {:options [nil], 
+              :adv-options (), 
+              :board [[64 8 32 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]], 
+              :score 0, 
+              :direction :right}, 
+             :up 
+             {:options [nil], 
+              :adv-options ({:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), 
+              :board [[64 8 32 16] [4 8 16 2] [2 4 16 32] [0 0 0 0]], 
+              :score 4, 
+              :direction :up}, 
+             :down 
+             {:options [nil], 
+              :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3}), 
+              :board [[0 0 0 0] [64 8 32 16] [2 4 16 2] [4 8 16 32]], 
+              :score 4, 
+              :direction :down}}], 
+  :adv-options (), 
+  :board [[64 8 32 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]], :score 0, :direction :right}, :up {:options 
+                                                                                             [{:left {:options [nil], :adv-options ({:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[64 8 32 16] [4 8 16 2] [2 4 16 32] [0 0 0 0]], :score 4, :direction :left}, :right {:options [nil], :adv-options ({:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[64 8 32 16] [4 8 16 2] [2 4 16 32] [0 0 0 0]], :score 4, :direction :right}, :up {:options [nil], :adv-options ({:x 2, :y 1} {:x 2, :y 2} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[64 16 32 16] [4 4 32 2] [2 0 0 32] [0 0 0 0]], :score 6, :direction :up}, :down {:options [nil], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 1} {:x 1, :y 2}), :board [[0 0 0 0] [64 0 0 16] [4 16 32 2] [2 4 32 32]], :score 6, :direction :down}}], :adv-options ({:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[64 8 32 16] [4 8 16 2] [2 4 16 32] [0 0 0 0]], :score 4, :direction :up}, :down {:options [{:left {:options [nil], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3}), :board [[0 0 0 0] [64 8 32 16] [2 4 16 2] [4 8 16 32]], :score 4, :direction :left}, :right {:options [nil], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3}), :board [[0 0 0 0] [64 8 32 16] [2 4 16 2] [4 8 16 32]], :score 4, :direction :right}, :up {:options [nil], :adv-options ({:x 2, :y 2} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[64 8 32 16] [2 4 32 2] [4 8 0 32] [0 0 0 0]], :score 5, :direction :up}, :down {:options [nil], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 2}), :board [[0 0 0 0] [64 8 0 16] [2 4 32 2] [4 8 32 32]], :score 5, :direction :down}}], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3}), :board [[0 0 0 0] [64 8 32 16] [2 4 16 2] [4 8 16 32]], :score 4, :direction :down}}
+
+
+
+; {:options 
+;         {:left {:options nil, :board [[2 0 0 0] [2 0 0 0] [0 0 0 0] [0 0 0 0]], :score 0, :direction :left}, 
+;          :right {:options nil, :board [[0 0 0 2] [0 0 0 2] [0 0 0 0] [0 0 0 0]], :score 0, :direction :right}, 
+;          :up {:options nil, :board [[4 0 0 0] [0 0 0 0] [0 0 0 0] [0 0 0 0]], :score 32, :direction :up}, 
+;          :down {:options nil, :board [[0 0 0 0] [0 0 0 0] [0 0 0 0] [4 0 0 0]], :score 2048, :direction :down}}, 
+;         :board [[2 0 0 0] [2 0 0 0] [0 0 0 0] [0 0 0 0]], 
+;         :score 0, 
+;         :direction :left}, 
+
+(into [] (concat [1 2 3 4 ] [ 5 6 7]))
+
+(into (into [] [1 2 3 4]) [5 6 7 8])
+
+(concat (into [] (map #(minimax-aux %) (:left options))) (into [] (map #(minimax-aux %) (:right options))) (into [] (map #(minimax-aux %) (:up options)))  (into [] (map #(minimax-aux %) (:down options))))
 
 (defn minimax-aux [tree]
   (if-let [options (:options tree)]
-    (let [vals [(minimax-aux (:left options)) (minimax-aux (:right options)) (minimax-aux (:up options)) (minimax-aux (:down options))]]      
-      
+    (let [vals (concat 
+                 (into [] (map #(minimax-aux (:left %)) options)) 
+                 (into [] (map #(minimax-aux (:right %)) options)) 
+                 (into [] (map #(minimax-aux (:up %)) options))  
+                 (into [] (map #(minimax-aux (:down %)) options)))]
       (hash-map :min (apply min (map #(:min %) vals))
                 :max (apply max (map #(:max %) vals))))
     (hash-map :min (:score tree) :max (:score tree))))
 
+
+; (defn minimax-aux [tree]
+;   (if-let [options (:options tree)]
+;     (let [vals [(minimax-aux (:left options)) (minimax-aux (:right options)) (minimax-aux (:up options)) (minimax-aux (:down options))]]
+      
+;       (hash-map :min (apply min (map #(:min %) vals))
+;                 :max (apply max (map #(:max %) vals))))
+;     (hash-map :min (:score tree) :max (:score tree))))
+
+
+; (defn minimax [tree] 
+;   (hash-map 
+;     :left (minimax-aux (:left tree))
+;     :right (minimax-aux (:right tree))
+;     :up (minimax-aux (:up tree))
+;     :down (minimax-aux (:down tree))))
+
+
 (defn minimax [tree] 
   (hash-map 
-    :left (minimax-aux (:left tree))
-    :right (minimax-aux (:right tree))
-    :up (minimax-aux (:up tree))
-    :down (minimax-aux (:down tree))))
+    :left (map #(minimax-aux %) (:left tree))
+    :right (map #(minimax-aux %) (:right tree))
+    :up (map #(minimax-aux %)  (:up tree))
+    :down (map #(minimax-aux %) (:down tree))))
 
-(minimax (build 4 [[64 8 32 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]]))
+(build 2 [[0 8 0 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]])
+
+(minimax (build 2 [[0 8 0 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]]))
+
+{:left {:options [{:left {:options [], :adv-options ({:x 0, :y 3}), :board [[8 16 2 0] [2 4 16 2] [2 4 8 16] [2 4 8 16]], :score 1, :direction :left}, :right {:options [], :adv-options ({:x 0, :y 0}), :board [[0 8 16 2] [2 4 16 2] [2 4 8 16] [2 4 8 16]], :score 1, :direction :right}, :up {:options [], :adv-options ({:x 2, :y 3} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[8 16 2 2] [4 8 16 32] [2 4 16 0] [0 0 0 0]], :score 5, :direction :up}, :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 3}), :board [[0 0 0 0] [8 16 2 0] [2 4 16 2] [4 8 16 32]], :score 5, :direction :down}} {:left {:options [], :adv-options ({:x 0, :y 3}), :board [[8 16 2 0] [2 4 16 2] [2 4 8 16] [2 4 8 16]], :score 1, :direction :left}, :right {:options [], :adv-options ({:x 0, :y 0}), :board [[0 8 16 2] [2 4 16 2] [2 4 8 16] [2 4 8 16]], :score 1, :direction :right}, :up {:options [], :adv-options ({:x 2, :y 2} {:x 2, :y 3} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[8 16 16 4] [4 8 16 32] [2 4 0 0] [0 0 0 0]], :score 6, :direction :up}, :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 2} {:x 1, :y 3}), :board [[0 0 0 0] [8 16 0 0] [2 4 16 4] [4 8 16 32]], :score 6, :direction :down}}], :adv-options ({:x 0, :y 2} {:x 0, :y 3}), :board [[8 16 0 0] [2 4 16 2] [2 4 8 16] [2 4 8 16]], :score 2, :direction :left}, 
+ :right {:options [{:left {:options [], :adv-options ({:x 0, :y 3}), :board [[2 8 16 0] [2 4 16 2] [2 4 8 16] [2 4 8 16]], :score 1, :direction :left}, :right {:options [], :adv-options ({:x 0, :y 0}), :board [[0 2 8 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]], :score 1, :direction :right}, :up {:options [], :adv-options ({:x 2, :y 0} {:x 2, :y 1} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[4 8 8 16] [4 4 16 2] [0 0 16 32] [0 0 0 0]], :score 6, :direction :up}, :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 0} {:x 1, :y 1}), :board [[0 0 0 0] [0 0 8 16] [4 4 16 2] [4 8 16 32]], :score 6, :direction :down}} {:left {:options [], :adv-options ({:x 0, :y 3}), :board [[2 8 16 0] [2 4 16 2] [2 4 8 16] [2 4 8 16]], :score 1, :direction :left}, :right {:options [], :adv-options ({:x 0, :y 0}), :board [[0 2 8 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]], :score 1, :direction :right}, :up {:options [], :adv-options ({:x 2, :y 0} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[4 2 8 16] [2 8 16 2] [0 4 16 32] [0 0 0 0]], :score 5, :direction :up}, :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 0}), :board [[0 0 0 0] [0 2 8 16] [2 4 16 2] [4 8 16 32]], :score 5, :direction :down}}], :adv-options ({:x 0, :y 0} {:x 0, :y 1}), :board [[0 0 8 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]], :score 2, :direction :right}, 
+ :up {:options [{:left {:options [], :adv-options ({:x 0, :y 3} {:x 2, :y 3} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[4 8 32 0] [2 8 16 2] [2 4 32 0] [0 0 0 0]], :score 6, :direction :left}, 
+                 :right {:options [], :adv-options ({:x 0, :y 0} {:x 2, :y 0} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[0 4 8 32] [2 8 16 2] [0 2 4 32] [0 0 0 0]], :score 6, :direction :right}, 
+                 :up {:options [], :adv-options ({:x 1, :y 2} {:x 2, :y 0} {:x 2, :y 1} {:x 2, :y 2} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[4 16 32 16] [4 4 0 2] [0 0 0 32] [0 0 0 0]], :score 8, :direction :up}, 
+                 :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 0} {:x 1, :y 1} {:x 1, :y 2} {:x 2, :y 2}), :board [[0 0 0 0] [0 0 0 16] [4 16 0 2] [4 4 32 32]], :score 8, :direction :down}} 
+                {:left {:options [], :adv-options ({:x 0, :y 3} {:x 2, :y 3} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[4 8 32 0] [2 8 16 2] [4 2 32 0] [0 0 0 0]], :score 6, :direction :left}, 
+                 :right {:options [], :adv-options ({:x 0, :y 0} {:x 2, :y 0} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[0 4 8 32] [2 8 16 2] [0 4 2 32] [0 0 0 0]], :score 6, :direction :right}, 
+                 :up {:options [], :adv-options ({:x 2, :y 0} {:x 2, :y 1} {:x 2, :y 2} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[4 16 32 16] [2 4 2 2] [0 0 0 32] [0 0 0 0]], :score 7, :direction :up}, 
+                 :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 0} {:x 1, :y 1} {:x 1, :y 2}), :board [[0 0 0 0] [0 0 0 16] [4 16 32 2] [2 4 2 32]], :score 7, :direction :down}} 
+                {:left {:options [], :adv-options ({:x 0, :y 3} {:x 2, :y 2} {:x 2, :y 3} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[4 8 32 0] [2 8 16 2] [4 32 0 0] [2 0 0 0]], :score 6, :direction :left}, 
+                 :right {:options [], :adv-options ({:x 0, :y 0} {:x 2, :y 0} {:x 2, :y 1} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2}), :board [[0 4 8 32] [2 8 16 2] [0 0 4 32] [0 0 0 2]], :score 6, :direction :right}, 
+                 :up {:options [], :adv-options ({:x 1, :y 2} {:x 2, :y 0} {:x 2, :y 1} {:x 2, :y 2} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[4 16 32 16] [4 4 0 2] [0 0 0 32] [0 0 0 0]], :score 8, :direction :up}, 
+                 :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 0} {:x 1, :y 1} {:x 1, :y 2} {:x 2, :y 2}), :board [[0 0 0 0] [0 0 0 16] [4 16 0 2] [4 4 32 32]], :score 8, :direction :down}} 
+                {:left {:options [], :adv-options ({:x 0, :y 3} {:x 2, :y 2} {:x 2, :y 3} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[4 8 32 0] [2 8 16 2] [4 32 0 0] [2 0 0 0]], :score 6, :direction :left}, 
+                 :right {:options [], :adv-options ({:x 0, :y 0} {:x 2, :y 0} {:x 2, :y 1} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2}), :board [[0 4 8 32] [2 8 16 2] [0 0 4 32] [0 0 0 2]], :score 6, :direction :right}, 
+                 :up {:options [], :adv-options ({:x 1, :y 2} {:x 2, :y 0} {:x 2, :y 2} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[4 16 32 16] [2 4 0 2] [0 2 0 32] [0 0 0 0]], :score 7, :direction :up}, 
+                 :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 0} {:x 1, :y 2} {:x 2, :y 2}), :board [[0 0 0 0] [0 16 0 16] [4 4 0 2] [2 2 32 32]], :score 7, :direction :down}} 
+                {:left {:options [], :adv-options ({:x 0, :y 3} {:x 2, :y 2} {:x 2, :y 3} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[4 8 32 0] [2 8 16 2] [4 32 0 0] [2 0 0 0]], :score 6, :direction :left}, 
+                 :right {:options [], :adv-options ({:x 0, :y 0} {:x 2, :y 0} {:x 2, :y 1} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2}), :board [[0 4 8 32] [2 8 16 2] [0 0 4 32] [0 0 0 2]], :score 6, :direction :right}, 
+                 :up {:options [], :adv-options ({:x 2, :y 0} {:x 2, :y 1} {:x 2, :y 2} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[4 16 32 16] [2 4 2 2] [0 0 0 32] [0 0 0 0]], :score 7, :direction :up}, 
+                 :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 0} {:x 1, :y 1} {:x 1, :y 2}), :board [[0 0 0 0] [0 0 0 16] [4 16 32 2] [2 4 2 32]], :score 7, :direction :down}} 
+                {:left {:options [], :adv-options ({:x 0, :y 3} {:x 2, :y 2} {:x 2, :y 3} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[4 8 32 0] [2 8 16 2] [4 32 0 0] [2 0 0 0]], :score 6, :direction :left}, 
+                 :right {:options [], :adv-options ({:x 0, :y 0} {:x 2, :y 0} {:x 2, :y 1} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2}), :board [[0 4 8 32] [2 8 16 2] [0 0 4 32] [0 0 0 2]], :score 6, :direction :right}, 
+                 :up {:options [], :adv-options ({:x 1, :y 2} {:x 2, :y 0} {:x 2, :y 1} {:x 2, :y 2} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2}), :board [[4 16 32 16] [2 4 0 2] [0 0 0 32] [0 0 0 2]], :score 7, :direction :up}, 
+                 :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 1, :y 0} {:x 1, :y 1} {:x 1, :y 2} {:x 2, :y 2}), :board [[0 0 0 16] [0 0 0 2] [4 16 0 32] [2 4 32 2]], :score 7, :direction :down}}], 
+      :adv-options ({:x 2, :y 0} {:x 2, :y 2} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[4 8 16 16] [2 8 16 2] [0 4 0 32] [0 0 0 0]], :score 6, :direction :up}, 
+ :down {:options [{:left {:options [], :adv-options ({:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 2} {:x 1, :y 3}), :board [[2 0 0 0] [8 16 0 0] [2 4 16 2] [4 8 16 32]], :score 5, :direction :left}, :right {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 1, :y 0} {:x 1, :y 1}), :board [[0 0 0 2] [0 0 8 16] [2 4 16 2] [4 8 16 32]], :score 5, :direction :right}, :up {:options [], :adv-options ({:x 1, :y 2} {:x 2, :y 0} {:x 2, :y 2} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[4 8 32 16] [4 4 0 2] [0 8 0 32] [0 0 0 0]], :score 7, :direction :up}, :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 0} {:x 1, :y 2} {:x 2, :y 2}), :board [[0 0 0 0] [0 8 0 16] [4 4 0 2] [4 8 32 32]], :score 7, :direction :down}} {:left {:options [], :adv-options ({:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 2} {:x 1, :y 3}), :board [[2 0 0 0] [8 16 0 0] [2 4 16 2] [4 8 16 32]], :score 5, :direction :left}, :right {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 1, :y 0} {:x 1, :y 1}), :board [[0 0 0 2] [0 0 8 16] [2 4 16 2] [4 8 16 32]], :score 5, :direction :right}, :up {:options [], :adv-options ({:x 1, :y 2} {:x 2, :y 0} {:x 2, :y 2} {:x 3, :y 0} {:x 3, :y 2} {:x 3, :y 3}), :board [[2 2 32 16] [4 8 0 2] [0 4 0 32] [0 8 0 0]], :score 6, :direction :up}, :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 0} {:x 1, :y 2} {:x 2, :y 2}), :board [[0 2 0 0] [0 8 0 16] [2 4 0 2] [4 8 32 32]], :score 6, :direction :down}} {:left {:options [], :adv-options ({:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 2} {:x 1, :y 3}), :board [[2 0 0 0] [8 16 0 0] [2 4 16 2] [4 8 16 32]], :score 5, :direction :left}, :right {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 1, :y 0} {:x 1, :y 1}), :board [[0 0 0 2] [0 0 8 16] [2 4 16 2] [4 8 16 32]], :score 5, :direction :right}, :up {:options [], :adv-options ({:x 2, :y 0} {:x 2, :y 2} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[2 8 2 16] [4 4 32 2] [0 8 0 32] [0 0 0 0]], :score 6, :direction :up}, :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 0} {:x 1, :y 2}), :board [[0 0 0 0] [0 8 0 16] [2 4 2 2] [4 8 32 32]], :score 6, :direction :down}} {:left {:options [], :adv-options ({:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 2} {:x 1, :y 3}), :board [[2 0 0 0] [8 16 0 0] [2 4 16 2] [4 8 16 32]], :score 5, :direction :left}, :right {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 1, :y 0} {:x 1, :y 1}), :board [[0 0 0 2] [0 0 8 16] [2 4 16 2] [4 8 16 32]], :score 5, :direction :right}, :up {:options [], :adv-options ({:x 1, :y 2} {:x 2, :y 0} {:x 2, :y 2} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2}), :board [[2 8 32 2] [4 4 0 16] [0 8 0 2] [0 0 0 32]], :score 6, :direction :up}, :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 1, :y 0} {:x 1, :y 2} {:x 2, :y 2}), :board [[0 0 0 2] [0 8 0 16] [2 4 0 2] [4 8 32 32]], :score 6, :direction :down}} {:left {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 3}), :board [[0 0 0 0] [2 8 16 0] [2 4 16 2] [4 8 16 32]], :score 5, :direction :left}, :right {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 0}), :board [[0 0 0 0] [0 2 8 16] [2 4 16 2] [4 8 16 32]], :score 5, :direction :right}, :up {:options [], :adv-options ({:x 1, :y 2} {:x 2, :y 0} {:x 2, :y 2} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[4 8 32 16] [4 4 0 2] [0 8 0 32] [0 0 0 0]], :score 7, :direction :up}, :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 0} {:x 1, :y 2} {:x 2, :y 2}), :board [[0 0 0 0] [0 8 0 16] [4 4 0 2] [4 8 32 32]], :score 7, :direction :down}} {:left {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 3}), :board [[0 0 0 0] [8 2 16 0] [2 4 16 2] [4 8 16 32]], :score 5, :direction :left}, :right {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 0}), :board [[0 0 0 0] [0 8 2 16] [2 4 16 2] [4 8 16 32]], :score 5, :direction :right}, :up {:options [], :adv-options ({:x 2, :y 0} {:x 2, :y 2} {:x 3, :y 0} {:x 3, :y 1} {:x 3, :y 2} {:x 3, :y 3}), :board [[2 8 2 16] [4 4 32 2] [0 8 0 32] [0 0 0 0]], :score 6, :direction :up}, :down {:options [], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 0} {:x 1, :y 2}), :board [[0 0 0 0] [0 8 0 16] [2 4 2 2] [4 8 32 32]], :score 6, :direction :down}}], :adv-options ({:x 0, :y 0} {:x 0, :y 1} {:x 0, :y 2} {:x 0, :y 3} {:x 1, :y 0} {:x 1, :y 2}), :board [[0 0 0 0] [0 8 0 16] [2 4 16 2] [4 8 16 32]], :score 6, :direction :down}}
 
 
-(into [] (hash-map :test "balh" :test2 "balh"))
+
 
 (defn fmap 
   [f m]
@@ -564,9 +712,17 @@
 ;
 ; TODO optimize to put in bucket and the select among the moves in the bucket
 (defn optimal-minimax-move [board]
-    (let [scoring (minimax (build 5 board))] 
-      (let [t (fmap (fn [k v] (hash-map :min (:min v) :max (:max v) :direction k)) scoring)]
+    (let [scoring (minimax (build 2 board))] 
+      (let [t (fmap (fn [k v] (hash-map :min (:min v) :max (:max v) :direction k )) scoring)]
         (:direction (last (sort-by #(+ (* 16 (:min %)) (:max %)) t)))
+)))
+
+(optimal-minimax-move [[64 8 32 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]])
+
+(defn optimal-minimax-move [board]
+    (let [scoring (minimax (build 2 board))] 
+      (let [t (fmap (fn [k v] (hash-map :min (:min v) :max (:max v) :direction k)) scoring)]
+        (sort-by #(+ (* 16 (:min %)) (:max %)) t)
 )))
 
 (optimal-minimax-move [[64 8 32 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]])
@@ -610,7 +766,7 @@
     (let [move (optimal-minimax-move board)]
         (play-a-turn board move)))
 
-(nth (iterate play-optimally test-board) 1000)
+(time (try (nth (iterate play-optimally test-board) 1000) (catch Exception e (println (.getMessage e)))))
 
 
 (print-board [[64 8 32 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]])
