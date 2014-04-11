@@ -64,8 +64,8 @@
 (defn payoff-fn [board] 
   (let [payoff-coef [ 0 0 0 0
                     0 0 0 0
-                    0 0 0 0
-                    1 1 0 0]]
+                    1 1 1 0
+                    1 1 1 0]]
     (* (/ (count (board/board-blank-elements board)) 16)
        (reduce + 
             (map 

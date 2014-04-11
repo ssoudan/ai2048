@@ -347,8 +347,8 @@
 
 ;; Be able to collect neighbors
 
-(defn neighbors [board x y]
-  (when (and (< x (dec board-size)) (< y (dec board-size)))
+(defn neighbors [board x y]  
+  (when (and (< x board-size) (<= 0 x) (< y board-size) (<= 0 y))
   (filter identity (concat 
     (let [row (board x)]             
       (list
