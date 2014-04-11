@@ -55,6 +55,8 @@ Not implemented features:
 
 Here is the thing to read: http://en.wikipedia.org/wiki/Minimax 
 
+I have adapted this a bit since the other player is not rational and the expected payoff of a move is not always limited to the leftover of the best move of other player.
+
 And, in case, the source code contains some text/comment to help reading/fixing/tweaking it.
 
 ## License
