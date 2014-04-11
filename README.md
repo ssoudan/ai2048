@@ -34,17 +34,18 @@ None so far, the output is not very pretty.
 ### Bugs
 
 We don't do that anymore. That's deprecated!
+
 Well, if you are lucky enough to reach 2048, the program won't stop until it has played its hardcoded number of turns (4000?).
 But who care? it's a victory.
 
 Not implemented features:
-[] real score 
-[] integrate with the real game (unless you can share your score on facebook, that doesn't really count)
-[] does not follow the rule that prevent you to move in a direction that would cause no change in the board
-[] cost function can probably be optimized
-[] ranking function too
-[] can we prune some part of the tree of moves before evaluating them?
-[] tree construction does not take into account that the new elements can be 4s.
+- [ ] real score 
+- [ ] integrate with the real game (unless you can share your score on facebook, that doesn't really count)
+- [ ] does not follow the rule that prevent you to move in a direction that would cause no change in the board
+- [ ] cost function can probably be optimized
+- [ ] ranking function too
+- [ ] can we prune some part of the tree of moves before evaluating them?
+- [ ] tree construction does not take into account that the new elements can be 4s.
 
 ### Any Other Sections
 ### That You Think
@@ -52,7 +53,8 @@ Not implemented features:
 
 ## More seriously 
 
-Here is the thing to read: http://en.wikipedia.org/wiki/Minimax .
+Here is the thing to read: http://en.wikipedia.org/wiki/Minimax 
+
 And, in case, the source code contains some text/comment to help reading/fixing/tweaking it.
 
 ## License
