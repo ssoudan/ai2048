@@ -184,7 +184,15 @@
     [ x y 0 z ] (if (= y z) (vec [0 0 x (+ y z)]) (if (= x y) (vec [0 0 (+ x y) z]) (vec [0 x y z])))    
     [ x 0 y z ] (if (= y z) (vec [0 0 x (+ y z)]) (if (= x y) (vec [0 0 (+ x y) z]) (vec [0 x y z])))    
     [ 0 x y z ] (if (= y z) (vec [0 0 x (+ y z)]) (if (= x y) (vec [0 0 (+ x y) z]) (vec [0 x y z])))    
-    [ w x y z ] (if (= y z) (if (= w x) (vec [0 0 (+ w x) (+ y z)]) (vec [0 w x (+ y z)])) (if (= x y) (vec [0 w (+ x y) z]) (if (= w x) (vec [0 (+ w x) y z ]) (vec [w x y z]))))
+    [ w x y z ] (if (= y z) 
+                  (if (= w x)                     
+                    (vec [0 0 (+ w x) (+ y z)]) ; y = z && w = x
+                    (vec [0 w x (+ y z)])) ; y = z && w != x
+                  (if (= x y) 
+                    (vec [0 w (+ x y) z]) ; y != z && x = y
+                    (if (= w x) 
+                      (vec [0 (+ w x) y z ]) ; y != z && w = x
+                      (vec [w x y z])))) ; y = z && w != x
     :else (throw (Exception. "what's that?"))))
 
 ; (evolve-row [ 1 1 0 1 ])
@@ -317,10 +325,10 @@
 (defn play-sequence [board moves]
   (reduce move-pieces board moves))
 
-(-> (play-sequence [[1 1 2 0]
-                    [1 1 2 0]
-                    [1 1 2 0]
-                    [1 1 2 0]] [:left :left :up :up]) print-board)
+; (-> (play-sequence [[1 1 2 0]
+;                     [1 1 2 0]
+;                     [1 1 2 0]
+;                     [1 1 2 0]] [:left :left :up :up]) print-board)
 
 ;; Be able to generate a new random element in a blank cell
 
@@ -328,17 +336,19 @@
   (let [blank (rand-board-blank-element board)] 
     (set-element board (:x blank) (:y blank) (if (= (rand-int 10) 0) 4 2))))
 
-(-> (new-board) generate-new-rand-element print-board)
+; (generate-new-rand-element (new-board))
 
-(print-board (generate-new-rand-element (new-board)))
+; (-> (new-board) generate-new-rand-element print-board)
 
-(let [board (new-board)]
-  (nth (iterate generate-new-rand-element board) 5 ))
+; (print-board (generate-new-rand-element (new-board)))
 
+; (let [board (new-board)]
+;   (nth (iterate generate-new-rand-element board) 5 ))
 
 ;; Be able to collect neighbors
 
 (defn neighbors [board x y]
+  (when (and (< x (dec board-size)) (< y (dec board-size)))
   (filter identity (concat 
     (let [row (board x)]             
       (list
@@ -348,30 +358,29 @@
       (let [col (rotated-board y)]
            (list 
              (when (pos? x) (col (dec x))) 
-             (when (< x (dec board-size)) (col (inc x))))))
-    )))
+             (when (< x (dec board-size)) (col (inc x))))))))))
   
-(neighbors [[1 2 3 4]
-            [5 6 7 8]
-            [9 10 11 12]
-            [13 14 15 16]] 3 3)
+; (neighbors [[1 2 3 4]
+;             [5 6 7 8]
+;             [9 10 11 12]
+;             [13 14 15 16]] 3 3)
 
 
-(neighbors [[1 2 3 4]
-            [5 6 7 8]
-            [9 10 11 12]
-            [13 14 15 16]] 0 0)
+; (neighbors [[1 2 3 4]
+;             [5 6 7 8]
+;             [9 10 11 12]
+;             [13 14 15 16]] 0 0)
 
-(neighbors [[1 2 3 4]
-            [5 6 7 8]
-            [9 10 11 12]
-            [13 14 15 16]] 0 2)
+; (neighbors [[1 2 3 4]
+;             [5 6 7 8]
+;             [9 10 11 12]
+;             [13 14 15 16]] 0 2)
 
 
-(neighbors [[1 2 3 4]
-            [5 6 7 8]
-            [9 10 11 12]
-            [13 14 15 16]] 2 2)
+; (neighbors [[1 2 3 4]
+;             [5 6 7 8]
+;             [9 10 11 12]
+;             [13 14 15 16]] 2 2)
 
 ;; Define a test-board
 
@@ -380,4 +389,4 @@
                  [0 0 0 0]
                  [0 0 0 0]])
 
-(move-pieces test-board :up)
+; (move-pieces test-board :up)
