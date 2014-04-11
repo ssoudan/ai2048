@@ -21,45 +21,30 @@
 
 (defn eval-option [board cost direction] (let [new-board (board/move-pieces board direction)] {:board new-board :score (cost new-board) :direction direction}))
 
-(eval-option test-board #(count (board/board-blank-elements %)) :up)
-(eval-option test-board #(count (board/board-blank-elements %)) :down)
-(eval-option test-board #(count (board/board-blank-elements %)) :left)
-(eval-option test-board #(count (board/board-blank-elements %)) :right)
+(eval-option board/test-board #(count (board/board-blank-elements %)) :up)
+(eval-option board/test-board #(count (board/board-blank-elements %)) :down)
+(eval-option board/test-board #(count (board/board-blank-elements %)) :left)
+(eval-option board/test-board #(count (board/board-blank-elements %)) :right)
 
-(reduce + (map * (flatten (reverse test-board)) (iterate inc 1)))
+(eval-option board/test-board #(reduce + (map * (flatten (reverse %)) (iterate inc 1))) :up)
+(eval-option board/test-board #(reduce + (map * (flatten (reverse %)) (iterate inc 1))) :down)
+(eval-option board/test-board #(reduce + (map * (flatten (reverse %)) (iterate inc 1))) :left)
+(eval-option board/test-board #(reduce + (map * (flatten (reverse %)) (iterate inc 1))) :right)
 
+(eval-option board/test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :up)
+(eval-option board/test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :down)
+(eval-option board/test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :left)
+(eval-option board/test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :right)
 
-(eval-option test-board #(reduce + (map * (flatten (reverse %)) (iterate inc 1))) :up)
-(eval-option test-board #(reduce + (map * (flatten (reverse %)) (iterate inc 1))) :down)
-(eval-option test-board #(reduce + (map * (flatten (reverse %)) (iterate inc 1))) :left)
-(eval-option test-board #(reduce + (map * (flatten (reverse %)) (iterate inc 1))) :right)
+(board/print-board board/test-board)
 
-(eval-option test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :up)
-(eval-option test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :down)
-(eval-option test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :left)
-(eval-option test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :right)
-
-(print-board test-board)
-
-(print-board (:board (last (sort-by #(:score %) [
-(eval-option test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :up)
-(eval-option test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :down)
-(eval-option test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :left)
-(eval-option test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :right)]))))
-
-(print-board (let [new-board (:board (last (sort-by #(:score %) [
-(eval-option test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :up)
-(eval-option test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :down)
-(eval-option test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :left)
-(eval-option test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :right)])))]
+(board/print-board (:board (last (sort-by #(:score %) [
+(eval-option board/test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :up)
+(eval-option board/test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :down)
+(eval-option board/test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :left)
+(eval-option board/test-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :right)]))))
   
-  (:board (last (sort-by #(:score %) [
-(eval-option new-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :up)
-(eval-option new-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :down)
-(eval-option new-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :left)
-(eval-option new-board #(reduce + (map * (flatten (reverse %)) (iterate (fn [x] (* 2 x)) 1))) :right)])))))
-
-(take 5 (iterate #(play-a-turn % :up) (new-board)))
+(take 5 (iterate #(play-a-turn % :up) (board/new-board)))
 
 
 ; (defn cost-fn [board] 
@@ -74,21 +59,19 @@
 ;               cost-coef))
 ;   ))
 
-(defn n-biggest-elements [n board]  (take-last n (sort-by #(+ (* 131072 (:val %)) (:x %) (:y %)) (filter #(not (= 0 (:val %))) (rank-xy board)))))
+(defn n-biggest-elements [n board]  (take-last n (sort-by #(+ (* 131072 (:val %)) (:x %) (:y %)) (filter #(not (= 0 (:val %))) (board/rank-xy board)))))
 ; (defn n-biggest-elements [n board]  (map #(dissoc % :val) (take-last n (sort-by #(:val %) (rank-xy board)))))
 (n-biggest-elements 16 [[1 2 2 4]
-                      [5 0 0 8]
-                      [2 2 2 12]
-                      [13 14 15 16]])
-
-
+                        [5 0 0 8]
+                        [2 2 2 12]
+                        [13 14 15 16]])
 
   
 (defn cost-fn [board] 
   (let [big-guys (n-biggest-elements 6 board)]
-    (* (count (board-blank-elements board)) 
+    (* (count (board/board-blank-elements board)) 
        (+ 1
-          (reduce + (map (fn [x y] (if (= (manhattan-distance x y) 1) '1 '0)) big-guys (drop 1 big-guys))))
+          (reduce + (map (fn [x y] (if (= (utils/manhattan-distance x y) 1) '1 '0)) big-guys (drop 1 big-guys))))
        (let [biggest (last big-guys)]
        (if (or 
              (= (:x biggest) 0)
@@ -134,9 +117,9 @@
 ;   ))
 
 (cost-fn [[1 2 3 4]
-            [5 6 7 8]
-            [9 10 11 12]
-            [13 0 15 16]])
+          [5 6 7 8]
+          [9 10 11 12]
+          [13 0 15 16]])
 
 ; (defn cost-fn [board] 
 ;   (let [coef [[1 1 1 1]
@@ -167,7 +150,7 @@
     (eval-option board cost-fn :left)
     (eval-option board cost-fn :right)]))
 
-(optimize-move test-board)
+(optimize-move board/test-board)
 (options-move [[8 4 2 2] [4 8 8 2] [64 16 16 4] [16 2 32 16]])
 (options-move [[0 0 0 0] [2 0 0 0] [8 0 0 0] [8 4 0 2]])
 
@@ -183,9 +166,9 @@
 ;   (into {} (map (fn [x] (hash-map (:direction x) x)) (options-move board))))
 
 (defn make-options [board] 
-  (into {} (map (fn [x] (hash-map (:direction x) (assoc x :adv-options (board-blank-elements (:board x))))) (options-move board))))
+  (into {} (map (fn [x] (hash-map (:direction x) (assoc x :adv-options (board/board-blank-elements (:board x))))) (options-move board))))
 
-(make-options test-board)
+(make-options board/test-board)
 
 ; (defn build [n board]
 ;     (when (pos? n)
@@ -205,8 +188,7 @@
 ;                 (build (dec n) (get-in options [:down :board]))) 
 ;         )))
 
-(defn build [depth credit board]
-  (println (str "credit=" credit " depth=" depth))
+(defn build [credit board]  
     (when (pos? credit)
       (let [options (make-options board)]
         (assoc-in 
@@ -216,19 +198,23 @@
                 options 
                 [:left :options] 
                 (let [opt (get-in options [:left :adv-options])]
-                (into [] (filter identity (map #(build (inc depth) (- (/ credit 4) (* 4 (count opt))) (set-element (get-in options [:left :board]) (:x %) (:y %) 2)) opt)))))
+                (into [] (filter identity (map #(build (- (/ credit 4) (* 4 (count opt))) (board/set-element (get-in options [:left :board]) (:x %) (:y %) 2)) opt)))))
                 [:right :options] 
                 (let [opt (get-in options [:right :adv-options])]
-                (into [] (filter identity (map #(build (inc depth) (- (/ credit 4) (* 4 (count opt))) (set-element (get-in options [:right :board]) (:x %) (:y %) 2)) opt))))) 
+                (into [] (filter identity (map #(build (- (/ credit 4) (* 4 (count opt))) (board/set-element (get-in options [:right :board]) (:x %) (:y %) 2)) opt))))) 
                 [:up :options] 
                 (let [opt (get-in options [:up :adv-options])]
-                (into [] (filter identity (map #(build (inc depth) (- (/ credit 4) (* 4 (count opt))) (set-element (get-in options [:up :board]) (:x %) (:y %) 2)) opt))))) 
+                (into [] (filter identity (map #(build (- (/ credit 4) (* 4 (count opt))) (board/set-element (get-in options [:up :board]) (:x %) (:y %) 2)) opt))))) 
                 [:down :options] 
                 (let [opt (get-in options [:down :adv-options])]
-                (into [] (filter identity (map #(build (inc depth) (- (/ credit 4) (* 4 (count opt))) (set-element (get-in options [:down :board]) (:x %) (:y %) 2)) opt))))) 
+                (into [] (filter identity (map #(build (- (/ credit 4) (* 4 (count opt))) (board/set-element (get-in options [:down :board]) (:x %) (:y %) 2)) opt))))) 
         )))
 
-(build 0 300 [[0 8 32 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]])
+(build 30 [[0 8 32 16] 
+           [2 4 16 2] 
+           [2 4 8 16] 
+           [2 4 8 16]])
+
 
 
 (defn minimax-aux [tree]
@@ -240,7 +226,7 @@
                  (filter identity (into [] (map #(minimax-aux (:up %)) options)))  
                  (filter identity (into [] (map #(minimax-aux (:down %)) options))))]
       (hash-map :min (try (apply min (map #(:min %) vals)) (catch Exception e 0 ))
-                :mean (try (mean (map #(:mean %) vals)) (catch Exception e 0 ))
+                :mean (try (utils/mean (map #(:mean %) vals)) (catch Exception e 0 ))
                 :options-count (try (reduce + (map #(:options-count %) vals)) (catch Exception e 0 ))
                 :max (try (apply max (map #(:max %) vals)) (catch Exception e 0 ))))
     
@@ -290,10 +276,10 @@
                     0 0 0 0
                     0 0 0 0
                     1 1 0 0]]
-    (* (/ (count (board-blank-elements board)) 16)
+    (* (/ (count (board/board-blank-elements board)) 16)
        (reduce + 
             (map 
-              (fn [x y] (* (power 2 x) y)) 
+              (fn [x y] (* (utils/power 2 x) y)) 
               (flatten (reverse board)) 
               cost-coef)))
   ))
@@ -316,7 +302,7 @@
 ; TODO optimize to put in bucket and the select among the moves in the bucket
 (defn optimal-minimax-move [board]
     (let [scoring (minimax (build 1000 board))] 
-      (let [t (fmap (fn [k v] (hash-map :min (:min v) :mean (:mean v) :max (:max v) :direction k :options-count (:options-count v))) scoring)]
+      (let [t (utils/fmap (fn [k v] (hash-map :min (:min v) :mean (:mean v) :max (:max v) :direction k :options-count (:options-count v))) scoring)]
         (let [options (sort-by #(+ (* 2 (:min %)) (:max %) (:mean %)) t)]
           (doall (map println options))
         (:direction (last options)))
@@ -361,17 +347,22 @@
 ;         :direction :down}}
 
 
-  
 (defn play-optimally [board]
   
     (let [move (optimal-minimax-move board)]
-        (print-board  board)
+        (board/print-board  board)
         
         (println (str "move=" move))
 
         (play-a-turn board move)))
 
-(time (try (nth (iterate play-optimally test-board) 4000) (catch Exception e (println (.getMessage e)))))
+; (time 
+;   (try 
+;     (nth 
+;       (iterate play-optimally test-board)
+;        4000) 
+;     (catch Exception e 
+;     	(println (.getMessage e)))))
 
 
 ; (time (try (nth (iterate play-optimally [[2 2048 4 2]
@@ -381,6 +372,6 @@
 
 
 
-(print-board [[64 8 32 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]])
+(board/print-board [[64 8 32 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]])
 (optimize-move [[64 8 32 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]])
 (options-move [[64 8 32 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]])

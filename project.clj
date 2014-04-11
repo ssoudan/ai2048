@@ -5,4 +5,5 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"] [org.clojure/core.match "0.2.1"]]
   :main ai2048.core  
+  :plugins [[lein-cloverage "1.0.2"]]
   )
