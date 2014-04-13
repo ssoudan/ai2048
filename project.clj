@@ -1,5 +1,5 @@
 (defproject ai2048 "0.1.0-SNAPSHOT"
-  :description "ai2048: write description"
+  :description "ai2048: minimax-based solver for 2048 game"
   :url "http://github.com/ssoudan/ai2048"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}

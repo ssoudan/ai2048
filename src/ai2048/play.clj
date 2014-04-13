@@ -9,11 +9,13 @@
 (defn play-a-turn [board direction] 
   (board/generate-new-rand-element (board/move-pieces board direction)))
 
-; (board/print-board (play-a-turn (nth (iterate board/generate-new-rand-element (board/new-board)) 2) :up))
+; (play-a-turn [[0 2 0 0] [0 0 2 0] [0 0 0 0] [0 0 0 0]] :up)
 
 ;; Be able to evaluate the score of a board
 
-(defn eval-option [board payoff-fn direction] (let [new-board (board/move-pieces board direction)] {:board new-board :score (payoff-fn new-board) :direction direction}))
+(defn eval-option [board payoff-fn direction] 
+  (let [new-board (board/move-pieces board direction)] 
+    {:board new-board :score (payoff-fn new-board) :direction direction}))
 
 ; (eval-option board/test-board #(count (board/board-blank-elements %)) :up)
 ; (eval-option board/test-board #(count (board/board-blank-elements %)) :down)
@@ -24,7 +26,13 @@
 ;; Be able to pick the largest elements of the board with their coordinate (use the coordinate for the sorting so that all elements
 ;; with the same value are kind of sorted according to their positions)
 
-(defn n-biggest-elements [n board]  (take-last n (sort-by #(+ (* 131072 (:val %)) (:x %) (:y %)) (filter #(not (= 0 (:val %))) (board/rank-xy board)))))
+(defn n-biggest-elements [n board]  
+  (take-last n 
+             (sort-by 
+               #(+ (* 131072 (:val %)) (:x %) (:y %)) 
+               (filter 
+                 #(not (= 0 (:val %))) 
+                 (board/rank-xy board)))))
 
 
 ; (n-biggest-elements 16 [[1 2 2 4]
@@ -53,13 +61,13 @@
              
 ;        ))))
 
-; (payoff-fn [[0 0 0 0] [0 8 0 16] [4 4 32 2] [4 8 32 32]])
-
-
 ;;
 ;; This is the one
 ;; it can reach 2048!!
 ;;
+;; We want:
+;; - as many blank element as possible
+;; - as big value as possible in the two positions in one corner
 
 (defn payoff-fn [board] 
   (let [payoff-coef [ 0 0 0 0
@@ -74,6 +82,9 @@
               payoff-coef)))
   ))
 
+ ; (payoff-fn [[0 0 0 0] [0 8 0 16] [4 4 32 2] [4 8 32 32]])
+ 
+ ; (payoff-fn [[2 2 2 2] [2 8 2 16] [4 4 32 2] [4 8 32 32]])
 
 ;; Be able to generate the board resulting of the moves
 ;;
@@ -105,7 +116,7 @@
 (defn make-options [board] 
   (into {} (map (fn [x] (hash-map (:direction x) (assoc x :adv-options (board/board-blank-elements (:board x))))) (options-move board))))
 
-; (make-options board/test-board)
+ (make-options board/test-board)
 
 ;; Be able to construct a tree of possible moves.
 ;; This tree is sort-of limited in size by the initial budget. 
@@ -179,28 +190,6 @@
 ; (minimax (build 1000 [[0 8 0 16] [2 4 16 2] [2 4 8 0] [2 4 0 16]]))
 
 ; (minimax (build 1000 [[0 8 0 16] [2 0 16 0] [2 4 8 0] [0 4 0 16]]))
-
-;;
-;; This is the one
-;; it can reach 2048!!
-;;
-;; We want:
-;; - as many blank element as possible
-;; - as big value as possible in the two positions in one corner
-
-(defn payoff-fn [board] 
-  (let [payoff-coef [ 0 0 0 0
-                      0 0 0 0
-                      0 0 0 0
-                      1 1 0 0]]
-    (* (/ (count (board/board-blank-elements board)) 16)
-       (reduce + 
-            (map 
-              (fn [x y] (* (utils/power 2 x) y)) 
-              (flatten (reverse board)) 
-              payoff-coef)))
-  ))
-
 
 ; (minimax (build 4 [[0 2 4 8]
 ;                    [2 4 0 0]
