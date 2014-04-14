@@ -6,15 +6,15 @@
 ;; Be able to play a real turn:
 ;; - make a move 
 ;; - get a random new element
-(defn play-a-turn [board direction] 
+(defn play-a-turn [board direction]
   (board/generate-new-rand-element (board/move-pieces board direction)))
 
 ; (play-a-turn [[0 2 0 0] [0 0 2 0] [0 0 0 0] [0 0 0 0]] :up)
 
 ;; Be able to evaluate the score of a board
 
-(defn eval-option [board payoff-fn direction] 
-  (let [new-board (board/move-pieces board direction)] 
+(defn eval-option [board payoff-fn direction]
+  (let [new-board (board/move-pieces board direction)]
     {:board new-board :score (payoff-fn new-board) :direction direction}))
 
 ; (eval-option board/test-board #(count (board/board-blank-elements %)) :up)
@@ -26,12 +26,12 @@
 ;; Be able to pick the largest elements of the board with their coordinate (use the coordinate for the sorting so that all elements
 ;; with the same value are kind of sorted according to their positions)
 
-(defn n-biggest-elements [n board]  
-  (take-last n 
-             (sort-by 
-               #(+ (* 131072 (:val %)) (:x %) (:y %)) 
-               (filter 
-                 #(not (= 0 (:val %))) 
+(defn n-biggest-elements [n board]
+  (take-last n
+             (sort-by
+               #(+ (* 131072 (:val %)) (:x %) (:y %))
+               (filter
+                 #(not (= 0 (:val %)))
                  (board/rank-xy board)))))
 
 
@@ -46,7 +46,7 @@
 ;; This one is an attempt to get the bigger elements sorted and close (manhanttan distance) as well as 
 ;; value the blank elements and try to get the biggest element in a corner.
 ;; Doesn't work that well.
-  
+
 ; (defn payoff-fn [board] 
 ;   (let [big-guys (n-biggest-elements 6 board)]
 ;     (* (count (board/board-blank-elements board)) 
@@ -58,7 +58,7 @@
 ;              (= (:x biggest) 3)
 ;              (= (:y biggest) 0)
 ;              (= (:y biggest) 3)) '2 '1)
-             
+
 ;        ))))
 
 ;;
@@ -69,33 +69,33 @@
 ;; - as many blank element as possible
 ;; - as big value as possible upper line
 
-(defn payoff-fn [board] 
-  (let [payoff-coef [ 0 0 0 0
-                      0 0 0 0
-                      0 0 0 0
-                      1 1 1 1]]
+(defn payoff-fn [board]
+  (let [payoff-coef [0 0 0 0
+                     0 0 0 0
+                     0 0 0 0
+                     1 1 1 1]]
     (* (/ (count (board/board-blank-elements board)) 16)
-       (reduce + 
-            (map 
-              (fn [x y] (* (utils/power 2 x) y)) 
-              (flatten (reverse board)) 
-              payoff-coef)))
-  ))
+       (reduce +
+               (map
+                 (fn [x y] (* (utils/power 2 x) y))
+                 (flatten (reverse board))
+                 payoff-coef)))
+    ))
 
- ; (payoff-fn [[0 0 0 0] [0 8 0 16] [4 4 32 2] [4 8 32 32]])
- 
- ; (payoff-fn [[2 2 2 2] [2 8 2 16] [4 4 32 2] [4 8 32 32]])
+; (payoff-fn [[0 0 0 0] [0 8 0 16] [4 4 32 2] [4 8 32 32]])
+
+; (payoff-fn [[2 2 2 2] [2 8 2 16] [4 4 32 2] [4 8 32 32]])
 
 ;; Be able to generate the board resulting of the moves
 ;;
 ;; TODO: blacklist taboo-ed directions
 
-(defn options-move [board]   
+(defn options-move [board]
   (sort-by #(:score %) [
-    (eval-option board payoff-fn :up)
-    (eval-option board payoff-fn :down)
-    (eval-option board payoff-fn :left)
-    (eval-option board payoff-fn :right)]))
+                         (eval-option board payoff-fn :up)
+                         (eval-option board payoff-fn :down)
+                         (eval-option board payoff-fn :left)
+                         (eval-option board payoff-fn :right)]))
 
 ; (options-move [[8 4 2 2] [4 8 8 2] [64 16 16 4] [16 2 32 16]])
 ; (options-move [[0 0 0 0] [2 0 0 0] [8 0 0 0] [8 4 0 2]])
@@ -113,37 +113,37 @@
 ;; Then we will make assumption on what the actual random value is and again generate the new options 
 ;; starting from there.
 
-(defn make-options [board] 
+(defn make-options [board]
   (into {} (map (fn [x] (hash-map (:direction x) (assoc x :adv-options (board/board-blank-elements (:board x))))) (options-move board))))
 
- ; (make-options board/test-board)
+; (make-options board/test-board)
 
 ;; Be able to construct a tree of possible moves.
 ;; This tree is sort-of limited in size by the initial budget. 
 ;; That's not very precise as we don't know beforehand how many options we will get in a subtree before evaluating it 
 ;; and we always want to evaluate the different branches with some fairness.
 
-(defn build [budget board]  
-    (when (pos? budget)
-      (let [options (make-options board)]
-        (assoc-in 
-          (assoc-in 
-            (assoc-in 
-              (assoc-in 
-                options 
-                [:left :options] 
-                (let [opt (get-in options [:left :adv-options])]
+(defn build [budget board]
+  (when (pos? budget)
+    (let [options (make-options board)]
+      (assoc-in
+        (assoc-in
+          (assoc-in
+            (assoc-in
+              options
+              [:left :options]
+              (let [opt (get-in options [:left :adv-options])]
                 (into [] (filter identity (map #(build (- (/ budget 4) (* 4 (count opt))) (board/set-element (get-in options [:left :board]) (:x %) (:y %) 2)) opt)))))
-                [:right :options] 
-                (let [opt (get-in options [:right :adv-options])]
-                (into [] (filter identity (map #(build (- (/ budget 4) (* 4 (count opt))) (board/set-element (get-in options [:right :board]) (:x %) (:y %) 2)) opt))))) 
-                [:up :options] 
-                (let [opt (get-in options [:up :adv-options])]
-                (into [] (filter identity (map #(build (- (/ budget 4) (* 4 (count opt))) (board/set-element (get-in options [:up :board]) (:x %) (:y %) 2)) opt))))) 
-                [:down :options] 
-                (let [opt (get-in options [:down :adv-options])]
-                (into [] (filter identity (map #(build (- (/ budget 4) (* 4 (count opt))) (board/set-element (get-in options [:down :board]) (:x %) (:y %) 2)) opt))))) 
-        )))
+            [:right :options]
+            (let [opt (get-in options [:right :adv-options])]
+              (into [] (filter identity (map #(build (- (/ budget 4) (* 4 (count opt))) (board/set-element (get-in options [:right :board]) (:x %) (:y %) 2)) opt)))))
+          [:up :options]
+          (let [opt (get-in options [:up :adv-options])]
+            (into [] (filter identity (map #(build (- (/ budget 4) (* 4 (count opt))) (board/set-element (get-in options [:up :board]) (:x %) (:y %) 2)) opt)))))
+        [:down :options]
+        (let [opt (get-in options [:down :adv-options])]
+          (into [] (filter identity (map #(build (- (/ budget 4) (* 4 (count opt))) (board/set-element (get-in options [:down :board]) (:x %) (:y %) 2)) opt)))))
+      )))
 
 ; (build 30 [[0 8 32 16] 
 ;            [2 4 16 2] 
@@ -251,7 +251,7 @@
 
 (defn choose-move [choices]
   (last (sort-by #(+ (* 2 (:min (:value %))) (:mean (:value %))) choices))
-)
+  )
 
 ; (defn choose-move [choices]
 ;   (last (sort-by #(+ (* 2 (:min (:value %))) (:mean (:value %)) (:max (:value %))) choices))
@@ -276,29 +276,29 @@
 ;;
 
 (defn minimax-aggregate [vals]
-  
-   (hash-map :min (try (apply min (map #(:min %) vals)) (catch Exception e 0 ))
-             :mean (try (utils/mean (map #(:mean %) vals)) (catch Exception e 0 ))
-             :options-count (try (reduce + (map #(:options-count %) vals)) (catch Exception e 0 ))
-             :max (try (apply max (map #(:max %) vals)) (catch Exception e 0 ))))
+
+  (hash-map :min (try (apply min (map #(:min %) vals)) (catch Exception e 0))
+            :mean (try (utils/mean (map #(:mean %) vals)) (catch Exception e 0))
+            :options-count (try (reduce + (map #(:options-count %) vals)) (catch Exception e 0))
+            :max (try (apply max (map #(:max %) vals)) (catch Exception e 0))))
 
 ;;
 ;; Be able to pick the best option and aggregate the payoff recursively in the tree.
 ;;
 
 (defn minimax-aux [tree]
-  (let [options (:options tree)]    
+  (let [options (:options tree)]
     (if (not (empty? options))
       ; general case:
       (let [choices [
-                     {:direction :left :value (minimax-aggregate (filter identity (into [] (map #(minimax-aux (:left %)) options))))} 
-                     {:direction :right :value (minimax-aggregate (filter identity (into [] (map #(minimax-aux (:right %)) options))))} 
-                     {:direction :up :value (minimax-aggregate (filter identity (into [] (map #(minimax-aux (:up %)) options))))}  
-                     {:direction :down :value (minimax-aggregate (filter identity (into [] (map #(minimax-aux (:down %)) options))))}]]              
+                      {:direction :left :value (minimax-aggregate (filter identity (into [] (map #(minimax-aux (:left %)) options))))}
+                      {:direction :right :value (minimax-aggregate (filter identity (into [] (map #(minimax-aux (:right %)) options))))}
+                      {:direction :up :value (minimax-aggregate (filter identity (into [] (map #(minimax-aux (:up %)) options))))}
+                      {:direction :down :value (minimax-aggregate (filter identity (into [] (map #(minimax-aux (:down %)) options))))}]]
         (assoc-in (:value (choose-move choices)) [:options-count] (reduce + (map #(get-in % [:value :options-count]) choices))))
       ; if we have reached a leaf:
       (hash-map :min (:score tree) :mean (float (:score tree)) :max (:score tree) :options-count 1)
-    )))
+      )))
 
 ; (defn minimax-aux [tree]
 ;   (let [options (:options tree)]    
@@ -312,7 +312,7 @@
 ;                 :mean (try (utils/mean (map #(:mean %) vals)) (catch Exception e 0 ))
 ;                 :options-count (try (reduce + (map #(:options-count %) vals)) (catch Exception e 0 ))
 ;                 :max (try (apply max (map #(:max %) vals)) (catch Exception e 0 ))))
-    
+
 ;       (hash-map :min (:score tree) :mean (float (:score tree)) :max (:score tree) :options-count 1)
 ;     )))
 
@@ -320,8 +320,8 @@
 ;; Be able to evaluate the payoff of a tree.
 ;;
 
-(defn minimax [tree] 
-  (hash-map 
+(defn minimax [tree]
+  (hash-map
     :left (minimax-aux (:left tree))
     :right (minimax-aux (:right tree))
     :up (minimax-aux (:up tree))
@@ -346,12 +346,12 @@
 ;
 ; TODO optimize to put in bucket and the select among the moves in the bucket
 (defn optimal-minimax-move [board]
-    (let [scoring (minimax (build 1000 board))] 
-      (let [t (utils/fmap (fn [k v] (hash-map :min (:min v) :mean (:mean v) :max (:max v) :direction k :options-count (:options-count v))) scoring)]
-        (let [options (sort-by #(+ (* 2 (:min %)) (:mean %)) t)]
-          (doall (map println options))
+  (let [scoring (minimax (build 1000 board))]
+    (let [t (utils/fmap (fn [k v] (hash-map :min (:min v) :mean (:mean v) :max (:max v) :direction k :options-count (:options-count v))) scoring)]
+      (let [options (sort-by #(+ (* 2 (:min %)) (:mean %)) t)]
+        (doall (map println options))
         (:direction (last options)))
-)))
+      )))
 
 
 ; (optimal-minimax-move [[64 8 32 16] 
@@ -367,13 +367,13 @@
 ;;
 
 (defn play-smartly [board]
-  
-    (let [move (optimal-minimax-move board)]
-        (board/print-board  board)
-        
-        (println (str "move=" move))
 
-        (play-a-turn board move)))
+  (let [move (optimal-minimax-move board)]
+    (board/print-board board)
+
+    (println (str "move=" move))
+
+    (play-a-turn board move)))
 
 ; (nth 
 ;        (iterate play-smartly board/test-board)

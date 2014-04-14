@@ -1,6 +1,7 @@
 (ns ai2048.board
   (:require [ai2048.utils :as utils]
-   :use [clojure.core.match :only (match)]))
+            :use [clojure.core.match :only (match)]))
+
 ; (use '[clojure.core.match :only (match)])
 
 ;; Create a new empty board
@@ -21,8 +22,8 @@
 ; (new-board)
 
 ;; Be able to display a board
-(defn print-board [board] 
-  (doall (map (fn [x] (println x) ) (seq board))))
+(defn print-board [board]
+  (doall (map (fn [x] (println x)) (seq board))))
 
 ; (print-board [[1 2] [3 4]])
 
@@ -41,12 +42,12 @@
 
 ;; Label value with coordinates
 
-(defn distribute-x [x-rank elements] (map (fn [c] { :x x-rank :y (:y c) :val (:val c)}) elements))
+(defn distribute-x [x-rank elements] (map (fn [c] {:x x-rank :y (:y c) :val (:val c)}) elements))
 
 ; (distribute-x 2 [{:val 1 :y "y"}  {:val 2 :y "y2"}])
 
-(defn rank-x [arg] (map (fn [a b] {:val a :x b}) arg (range))) 
-(defn rank-y [arg] (map (fn [a b] {:val a :y b}) arg (range))) 
+(defn rank-x [arg] (map (fn [a b] {:val a :x b}) arg (range)))
+(defn rank-y [arg] (map (fn [a b] {:val a :y b}) arg (range)))
 
 (defn rank-xy [board] (flatten (map #(distribute-x (:x %) (:val %)) (rank-x (map rank-y (lazy-seq board))))))
 
@@ -54,7 +55,7 @@
 
 ;; Select element that are blank
 
-(defn blank-elements [ranked-elements]  (map #(dissoc % :val) (filter #(=(:val %) 0) ranked-elements)))
+(defn blank-elements [ranked-elements] (map #(dissoc % :val) (filter #(= (:val %) 0) ranked-elements)))
 
 ; (blank-elements (rank-xy [[0 10 20] [1 11 21] [2 12 22]]))
 
@@ -80,13 +81,13 @@
 ;                            [ 3 2 1 1 ]]) 
 
 
-(defn rand-board-blank-element [board] 
+(defn rand-board-blank-element [board]
   (let [b-elements (board-blank-elements board)]
     (if (empty? b-elements)
-    ;; then
-    (throw (Exception. (str "game over! max=" (apply max (flatten board)) ",board=" board)))
-    ;; else
-    (rand-nth b-elements))))
+      ;; then
+      (throw (Exception. (str "game over! max=" (apply max (flatten board)) ",board=" board)))
+      ;; else
+      (rand-nth b-elements))))
 
 ; (rand-board-blank-element [[ 1 2 3 1 ] 
 ;                            [ 3 3 1 1 ]
@@ -96,7 +97,7 @@
 
 ;; Be able to apply a function on a particular row 
 
-(defn apply-at [board idx f] 
+(defn apply-at [board idx f]
   (vec (concat (subvec board 0 idx) (list (f (board idx))) (subvec board (+ idx 1)))))
 
 ; (apply-at [1 2] 1 (fn [x] 0))
@@ -105,7 +106,7 @@
 
 ;; Be able to apply a function on a particular element of the board
 
-(defn apply-at-xy [board x y f] 
+(defn apply-at-xy [board x y f]
   (apply-at board x (fn [row] (apply-at row y f))))
 
 
@@ -168,32 +169,32 @@
 ;4 #32 [w x y z] -> [0 0 2.x 2.z] if y != 0 and w == x and y != x and y == z
 ;4 #33 [w x y z] -> [0 w 2.y z]  if y != 0 and w != x and y == x and y != z
 
- (defn evolve-row [row]
+(defn evolve-row [row]
   (match row
-    [ x 0 0 0 ] [ 0 0 0 x ]
-    [ 0 x 0 0 ] [ 0 0 0 x ]
-    [ 0 0 x 0 ] [ 0 0 0 x ]
-    [ 0 0 0 x ] [ 0 0 0 x ]
-    [ x y 0 0 ] (if (= x y) (vec [0 0 0 (+ x y)]) (vec [0 0 x y]))
-    [ x 0 y 0 ] (if (= x y) (vec [0 0 0 (+ x y)]) (vec [0 0 x y]))
-    [ x 0 0 y ] (if (= x y) (vec [0 0 0 (+ x y)]) (vec [0 0 x y]))
-    [ 0 x 0 y ] (if (= x y) (vec [0 0 0 (+ x y)]) (vec [0 0 x y]))
-    [ 0 0 x y ] (if (= x y) (vec [0 0 0 (+ x y)]) (vec [0 0 x y]))
-    [ 0 x y 0 ] (if (= x y) (vec [0 0 0 (+ x y)]) (vec [0 0 x y]))
-    [ x y z 0 ] (if (= y z) (vec [0 0 x (+ y z)]) (if (= x y) (vec [0 0 (+ x y) z]) (vec [0 x y z]))) 
-    [ x y 0 z ] (if (= y z) (vec [0 0 x (+ y z)]) (if (= x y) (vec [0 0 (+ x y) z]) (vec [0 x y z])))    
-    [ x 0 y z ] (if (= y z) (vec [0 0 x (+ y z)]) (if (= x y) (vec [0 0 (+ x y) z]) (vec [0 x y z])))    
-    [ 0 x y z ] (if (= y z) (vec [0 0 x (+ y z)]) (if (= x y) (vec [0 0 (+ x y) z]) (vec [0 x y z])))    
-    [ w x y z ] (if (= y z) 
-                  (if (= w x)                     
-                    (vec [0 0 (+ w x) (+ y z)]) ; y = z && w = x
-                    (vec [0 w x (+ y z)])) ; y = z && w != x
-                  (if (= x y) 
-                    (vec [0 w (+ x y) z]) ; y != z && x = y
-                    (if (= w x) 
-                      (vec [0 (+ w x) y z ]) ; y != z && w = x
-                      (vec [w x y z])))) ; y = z && w != x
-    :else (throw (Exception. "what's that?"))))
+         [x 0 0 0] [0 0 0 x]
+         [0 x 0 0] [0 0 0 x]
+         [0 0 x 0] [0 0 0 x]
+         [0 0 0 x] [0 0 0 x]
+         [x y 0 0] (if (= x y) (vec [0 0 0 (+ x y)]) (vec [0 0 x y]))
+         [x 0 y 0] (if (= x y) (vec [0 0 0 (+ x y)]) (vec [0 0 x y]))
+         [x 0 0 y] (if (= x y) (vec [0 0 0 (+ x y)]) (vec [0 0 x y]))
+         [0 x 0 y] (if (= x y) (vec [0 0 0 (+ x y)]) (vec [0 0 x y]))
+         [0 0 x y] (if (= x y) (vec [0 0 0 (+ x y)]) (vec [0 0 x y]))
+         [0 x y 0] (if (= x y) (vec [0 0 0 (+ x y)]) (vec [0 0 x y]))
+         [x y z 0] (if (= y z) (vec [0 0 x (+ y z)]) (if (= x y) (vec [0 0 (+ x y) z]) (vec [0 x y z])))
+         [x y 0 z] (if (= y z) (vec [0 0 x (+ y z)]) (if (= x y) (vec [0 0 (+ x y) z]) (vec [0 x y z])))
+         [x 0 y z] (if (= y z) (vec [0 0 x (+ y z)]) (if (= x y) (vec [0 0 (+ x y) z]) (vec [0 x y z])))
+         [0 x y z] (if (= y z) (vec [0 0 x (+ y z)]) (if (= x y) (vec [0 0 (+ x y) z]) (vec [0 x y z])))
+         [w x y z] (if (= y z)
+                     (if (= w x)
+                       (vec [0 0 (+ w x) (+ y z)]) ; y = z && w = x
+                       (vec [0 w x (+ y z)])) ; y = z && w != x
+                     (if (= x y)
+                       (vec [0 w (+ x y) z]) ; y != z && x = y
+                       (if (= w x)
+                         (vec [0 (+ w x) y z]) ; y != z && w = x
+                         (vec [w x y z])))) ; y = z && w != x
+         :else (throw (Exception. "what's that?"))))
 
 ; (evolve-row [ 1 1 0 1 ])
 ; (evolve-row [ 1024 1024 1 1 ])
@@ -293,7 +294,7 @@
 
 ;; Be able to play
 
-(defn move-pieces [board direction] 
+(defn move-pieces [board direction]
   (case direction
     :left (play-left board)
     :right (play-right board)
@@ -332,8 +333,8 @@
 
 ;; Be able to generate a new random element in a blank cell
 
-(defn generate-new-rand-element [board] 
-  (let [blank (rand-board-blank-element board)] 
+(defn generate-new-rand-element [board]
+  (let [blank (rand-board-blank-element board)]
     (set-element board (:x blank) (:y blank) (if (= (rand-int 10) 0) 4 2))))
 
 ; (generate-new-rand-element (new-board))
@@ -347,19 +348,19 @@
 
 ;; Be able to collect neighbors
 
-(defn neighbors [board x y]  
+(defn neighbors [board x y]
   (when (and (< x board-size) (<= 0 x) (< y board-size) (<= 0 y))
-  (filter identity (concat 
-    (let [row (board x)]             
-      (list
-         (when (pos? y) (row (dec y)))
-         (when (< y (dec board-size)) (row (inc y)))))
-    (let [rotated-board (rotate board)]
-      (let [col (rotated-board y)]
-           (list 
-             (when (pos? x) (col (dec x))) 
-             (when (< x (dec board-size)) (col (inc x))))))))))
-  
+    (filter identity (concat
+                       (let [row (board x)]
+                         (list
+                           (when (pos? y) (row (dec y)))
+                           (when (< y (dec board-size)) (row (inc y)))))
+                       (let [rotated-board (rotate board)]
+                         (let [col (rotated-board y)]
+                           (list
+                             (when (pos? x) (col (dec x)))
+                             (when (< x (dec board-size)) (col (inc x))))))))))
+
 ; (neighbors [[1 2 3 4]
 ;             [5 6 7 8]
 ;             [9 10 11 12]

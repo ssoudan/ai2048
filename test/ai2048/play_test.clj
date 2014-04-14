@@ -5,7 +5,7 @@
 
 (deftest play-a-turn-test
   (testing "FIXME, I fail."
-    (is (= (count (board/board-blank-elements (play-a-turn [[0 2 0 0] [0 0 2 0] [0 0 0 0] [0 0 0 0]] :up))) 
+    (is (= (count (board/board-blank-elements (play-a-turn [[0 2 0 0] [0 0 2 0] [0 0 0 0] [0 0 0 0]] :up)))
            13))))
 
 (deftest eval-option-test-0
@@ -31,9 +31,9 @@
 (deftest n-biggest-elements-test-0
   (testing "FIXME, I fail."
     (is (= (n-biggest-elements 16 [[1 2 2 4]
-                        [5 0 0 8]
-                        [2 2 2 12]
-                        [13 14 15 16]]) 
+                                   [5 0 0 8]
+                                   [2 2 2 12]
+                                   [13 14 15 16]])
            '({:x 0, :y 0, :val 1} {:x 0, :y 1, :val 2} {:x 0, :y 2, :val 2} {:x 2, :y 0, :val 2} {:x 2, :y 1, :val 2} {:x 2, :y 2, :val 2} {:x 0, :y 3, :val 4} {:x 1, :y 0, :val 5} {:x 1, :y 3, :val 8} {:x 2, :y 3, :val 12} {:x 3, :y 0, :val 13} {:x 3, :y 1, :val 14} {:x 3, :y 2, :val 15} {:x 3, :y 3, :val 16})))))
 
 (deftest payoff-fn-test-0
@@ -48,45 +48,45 @@
 (deftest options-move-test
   (testing "FIXME, I fail."
     (let [options (options-move [[0 0 0 0] [2 0 0 0] [8 0 0 0] [8 4 0 2]])]
-    (is (= (sort-by #(:direction %) options)
-           (sort-by #(:direction %) '({:board [[0 0 0 0] [0 0 0 0] [2 0 0 0] [16 4 0 2]], :score 0N, :direction :down} 
-                                      {:board [[0 0 0 0] [2 0 0 0] [8 0 0 0] [8 4 2 0]], :score 0N, :direction :left} 
-                                      {:board [[0 0 0 0] [0 0 0 2] [0 0 0 8] [0 8 4 2]], :score 0N, :direction :right} 
-                                      {:board [[2 4 0 2] [16 0 0 0] [0 0 0 0] [0 0 0 0]], :score 18N, :direction :up})))))))
+      (is (= (sort-by #(:direction %) options)
+             (sort-by #(:direction %) '({:board [[0 0 0 0] [0 0 0 0] [2 0 0 0] [16 4 0 2]], :score 0N, :direction :down}
+                                        {:board [[0 0 0 0] [2 0 0 0] [8 0 0 0] [8 4 2 0]], :score 0N, :direction :left}
+                                        {:board [[0 0 0 0] [0 0 0 2] [0 0 0 8] [0 8 4 2]], :score 0N, :direction :right}
+                                        {:board [[2 4 0 2] [16 0 0 0] [0 0 0 0] [0 0 0 0]], :score 18N, :direction :up})))))))
 
 (deftest make-options-test
   (testing "FIXME, I fail."
     (let [options (make-options board/test-board)]
-       (is (= (count (:adv-options (:down options))) 15)) 
-       (is (= (count (:adv-options (:up options))) 15))
-       (is (= (count (:adv-options (:left options))) 14)) 
-       (is (= (count (:adv-options (:right options))) 14))
+      (is (= (count (:adv-options (:down options))) 15))
+      (is (= (count (:adv-options (:up options))) 15))
+      (is (= (count (:adv-options (:left options))) 14))
+      (is (= (count (:adv-options (:right options))) 14))
       )))
 
 (deftest build-test
   (testing "FIXME, I fail."
-    (let [tree (build 30 [[0 8 32 16][2 4 16 2][2 4 8 16][2 4 8 16]])]                                              
-    (is (empty? (:options (:down tree))))
-    (is (empty? (:options (:up tree))))
-    (is (= (count (:options (:right tree))) 1))
-    (is (= (count (:options (:left tree))) 1)))))
-    
+    (let [tree (build 30 [[0 8 32 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]])]
+      (is (empty? (:options (:down tree))))
+      (is (empty? (:options (:up tree))))
+      (is (= (count (:options (:right tree))) 1))
+      (is (= (count (:options (:left tree))) 1)))))
+
 (deftest minimax-test
   (testing "FIXME, I fail."
     (is (= (minimax (build 1000 [[0 8 0 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]]))
            {:right {:mean 490.0, :max 490N, :min 490N, :options-count 116}, :left {:mean 490.0, :max 490N, :min 490N, :options-count 116}, :down {:mean 399.98611111111114, :max 616N, :min 123N, :options-count 544}, :up {:mean 703.1666666666666, :max 800N, :min 582N, :options-count 640}}
-))))
+           ))))
 
 (deftest optimal-minimax-move-test
   (testing "FIXME, I fail."
-    (is (= (optimal-minimax-move [[64 8 32 16] 
-                       [2 4 16 2] 
-                       [2 4 8 16] 
-                       [2 4 8 16]]) 
+    (is (= (optimal-minimax-move [[64 8 32 16]
+                                  [2 4 16 2]
+                                  [2 4 8 16]
+                                  [2 4 8 16]])
            :up
            ))))
 
 (deftest play-smartly-test
   (testing "FIXME, I fail."
-    (is (= (board/get-element (nth (iterate play-smartly board/test-board) 1) 0 3)  
+    (is (= (board/get-element (nth (iterate play-smartly board/test-board) 1) 0 3)
            2))))

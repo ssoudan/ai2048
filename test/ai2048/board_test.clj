@@ -13,92 +13,92 @@
 
 (deftest get-element-test-0
   (testing "FIXME, I fail."
-    (is (= (get-element [[ 1 2 3 1 ] 
-                         [ 3 3 1 1 ]
-                         [ 0 1 1 1 ]
-                         [ 3 2 1 1 ]] 2 0) 
+    (is (= (get-element [[1 2 3 1]
+                         [3 3 1 1]
+                         [0 1 1 1]
+                         [3 2 1 1]] 2 0)
            0))))
 
 
 (deftest get-element-test-1
   (testing "FIXME, I fail."
-    (is (= (get-element [[ 1 2 3 1 ] 
-                         [ 3 3 1 1 ]
-                         [ 0 1 1 1 ]
-                         [ 3 2 1 1 ]] 0 0) 
+    (is (= (get-element [[1 2 3 1]
+                         [3 3 1 1]
+                         [0 1 1 1]
+                         [3 2 1 1]] 0 0)
            1))))
 
 
 (deftest distribute-x-test-0
   (testing "FIXME, I fail."
-    (is (= (distribute-x 2 [{:val 1 :y "y"}  {:val 2 :y "y2"}]) 
-           '({:x 2, :y "y", :val 1} {:x 2, :y "y2", :val 2}) ))))
+    (is (= (distribute-x 2 [{:val 1 :y "y"} {:val 2 :y "y2"}])
+           '({:x 2, :y "y", :val 1} {:x 2, :y "y2", :val 2})))))
 
 
 (deftest rank-xy-test-0
   (testing "FIXME, I fail."
-    (is (= (rank-xy [[0 10 20] [1 11 21] [2 12 22]]) 
-           '({:x 0, :y 0, :val 0} 
-            {:x 0, :y 1, :val 10} 
-            {:x 0, :y 2, :val 20} 
-            {:x 1, :y 0, :val 1} 
-            {:x 1, :y 1, :val 11} 
-            {:x 1, :y 2, :val 21} 
-            {:x 2, :y 0, :val 2} 
-            {:x 2, :y 1, :val 12} 
-            {:x 2, :y 2, :val 22})))))
+    (is (= (rank-xy [[0 10 20] [1 11 21] [2 12 22]])
+           '({:x 0, :y 0, :val 0}
+             {:x 0, :y 1, :val 10}
+             {:x 0, :y 2, :val 20}
+             {:x 1, :y 0, :val 1}
+             {:x 1, :y 1, :val 11}
+             {:x 1, :y 2, :val 21}
+             {:x 2, :y 0, :val 2}
+             {:x 2, :y 1, :val 12}
+             {:x 2, :y 2, :val 22})))))
 
 
 (deftest blank-elements-test-0
   (testing "FIXME, I fail."
     (is (= (blank-elements (rank-xy [[0 10 20] [1 11 21] [2 12 22]]))
-            '({:x 0, :y 0}) ))))
+           '({:x 0, :y 0})))))
 
 
 (deftest blank-elements-test-1
   (testing "FIXME, I fail."
     (is (= (blank-elements (rank-xy [[0 10 20] [1 0 21] [2 0 22]]))
-            '({:x 0, :y 0} 
-              {:x 1, :y 1} 
-              {:x 2, :y 1})))))
+           '({:x 0, :y 0}
+             {:x 1, :y 1}
+             {:x 2, :y 1})))))
 
 
 (deftest board-blank-elements-test-0
   (testing "FIXME, I fail."
-    (is (= (board-blank-elements [[ 1 2 3 1 ] 
-                                  [ 3 3 1 1 ]
-                                  [ 1 1 1 1 ]
-                                  [ 3 2 1 1 ]]) 
-            '()))))
+    (is (= (board-blank-elements [[1 2 3 1]
+                                  [3 3 1 1]
+                                  [1 1 1 1]
+                                  [3 2 1 1]])
+           '()))))
 
 
 (deftest board-blank-elements-test-1
   (testing "FIXME, I fail."
-    (is (= (board-blank-elements [[ 1 2 3 1 ] 
-                                  [ 3 3 1 1 ]
-                                  [ 0 1 1 1 ]
-                                  [ 3 2 1 1 ]]) 
-            '({:x 2, :y 0})))))
+    (is (= (board-blank-elements [[1 2 3 1]
+                                  [3 3 1 1]
+                                  [0 1 1 1]
+                                  [3 2 1 1]])
+           '({:x 2, :y 0})))))
 
 
 (deftest board-blank-elements-test-2
   (testing "FIXME, I fail."
-    (is (= (board-blank-elements [[ 1 2 3 1 ] 
-                                  [ 3 3 1 1 ]
-                                  [ 0 0 0 1 ]
-                                  [ 3 2 1 1 ]]) 
-            '({:x 2, :y 0} 
-              {:x 2, :y 1} 
-              {:x 2, :y 2})))))
+    (is (= (board-blank-elements [[1 2 3 1]
+                                  [3 3 1 1]
+                                  [0 0 0 1]
+                                  [3 2 1 1]])
+           '({:x 2, :y 0}
+             {:x 2, :y 1}
+             {:x 2, :y 2})))))
 
 
 (deftest rand-board-blank-element-test-0
   (testing "FIXME, I fail."
-    (is (= (rand-board-blank-element [[ 1 2 3 1 ] 
-                                      [ 3 3 1 1 ]
-                                      [ 0 1 1 1 ]
-                                      [ 3 2 1 1 ]]) 
-            '{:x 2, :y 0}))))
+    (is (= (rand-board-blank-element [[1 2 3 1]
+                                      [3 3 1 1]
+                                      [0 1 1 1]
+                                      [3 2 1 1]])
+           '{:x 2, :y 0}))))
 
 
 (deftest apply-at-test-0
@@ -139,19 +139,19 @@
 
 (deftest evolve-row-test-0
   (testing "FIXME, I fail."
-    (is (= (do (evolve-row [ 1 1 0 1 ])) 
+    (is (= (do (evolve-row [1 1 0 1]))
            [0 0 1 2]))))
 
 
 (deftest evolve-row-test-1
   (testing "FIXME, I fail."
-    (is (= (do (evolve-row [ 1024 1024 1 1 ])) 
+    (is (= (do (evolve-row [1024 1024 1 1]))
            [0 0 2048 2]))))
 
 
 (deftest evolve-row-test-2
   (testing "FIXME, I fail."
-    (is (= (do (evolve-row [ 1 1 2 0 ])) 
+    (is (= (do (evolve-row [1 1 2 0]))
            [0 0 2 2]))))
 
 
@@ -175,7 +175,7 @@
   (testing "FIXME, I fail."
     (is (= (do (to-up [[1 2 3]
                        [4 5 6]
-                       [7 8 9]]))) 
+                       [7 8 9]])))
         [[7 4 1]
          [8 5 2]
          [9 6 3]])))
@@ -185,7 +185,7 @@
   (testing "FIXME, I fail."
     (is (= (do (to-down [[1 2 3]
                          [4 5 6]
-                         [7 8 9]]))) 
+                         [7 8 9]])))
         [[1 4 7]
          [2 5 8]
          [3 6 9]])))
@@ -195,7 +195,7 @@
   (testing "FIXME, I fail."
     (is (= (do (to-left [[1 2 3]
                          [4 5 6]
-                         [7 8 9]]))) 
+                         [7 8 9]])))
         [[3 2 1]
          [6 5 4]
          [9 8 7]])))
@@ -205,7 +205,7 @@
   (testing "FIXME, I fail."
     (is (= (do (to-right [[1 2 3]
                           [4 5 6]
-                          [7 8 9]]))) 
+                          [7 8 9]])))
         [[1 2 3]
          [4 5 6]
          [7 8 9]])))
@@ -213,10 +213,10 @@
 
 (deftest from-to-left-test
   (testing "FIXME, I fail."
-    (is (= (do 
+    (is (= (do
              (from-left (to-left [[1 2 3]
                                   [4 5 6]
-                                  [7 8 9]]))) 
+                                  [7 8 9]])))
            [[1 2 3]
             [4 5 6]
             [7 8 9]]))))
@@ -224,10 +224,10 @@
 
 (deftest from-to-right-test
   (testing "FIXME, I fail."
-    (is (= (do 
+    (is (= (do
              (from-right (to-right [[1 2 3]
                                     [4 5 6]
-                                    [7 8 9]]))) 
+                                    [7 8 9]])))
            [[1 2 3]
             [4 5 6]
             [7 8 9]]))))
@@ -235,10 +235,10 @@
 
 (deftest from-to-up-test
   (testing "FIXME, I fail."
-    (is (= (do 
+    (is (= (do
              (from-up (to-up [[1 2 3]
                               [4 5 6]
-                              [7 8 9]]))) 
+                              [7 8 9]])))
            [[1 2 3]
             [4 5 6]
             [7 8 9]]))))
@@ -246,10 +246,10 @@
 
 (deftest from-to-up-test
   (testing "FIXME, I fail."
-    (is (= (do 
+    (is (= (do
              (from-up (to-up [[1 2 3]
                               [4 5 6]
-                              [7 8 9]]))) 
+                              [7 8 9]])))
            [[1 2 3]
             [4 5 6]
             [7 8 9]]))))
@@ -260,7 +260,7 @@
     (is (= (do (evolve-board [[1 1 2 0]
                               [1 1 2 0]
                               [1 1 2 0]
-                              [1 1 2 0]])) 
+                              [1 1 2 0]]))
            '([0 0 2 2]
              [0 0 2 2]
              [0 0 2 2]
@@ -283,7 +283,7 @@
     (is (= (do (play-up [[1 1 2 0]
                          [1 1 2 0]
                          [1 1 2 0]
-                         [1 1 2 0]])) 
+                         [1 1 2 0]]))
            [[2 2 4 0]
             [2 2 4 0]
             [0 0 0 0]
@@ -295,7 +295,7 @@
     (is (= (do (play-down [[1 1 2 0]
                            [1 1 2 0]
                            [1 1 2 0]
-                           [1 1 2 0]])) 
+                           [1 1 2 0]]))
            [[0 0 0 0]
             [0 0 0 0]
             [2 2 4 0]
@@ -307,7 +307,7 @@
     (is (= (do (play-left [[1 1 2 0]
                            [1 1 2 0]
                            [1 1 2 0]
-                           [1 1 2 0]])) 
+                           [1 1 2 0]]))
            [[2 2 0 0]
             [2 2 0 0]
             [2 2 0 0]
@@ -319,7 +319,7 @@
     (is (= (do (move-pieces [[1 1 2 0]
                              [1 1 2 0]
                              [1 1 2 0]
-                             [1 1 2 0]] :left)) 
+                             [1 1 2 0]] :left))
            [[2 2 0 0]
             [2 2 0 0]
             [2 2 0 0]
@@ -331,7 +331,7 @@
     (is (= (do (move-pieces [[1 1 2 0]
                              [1 1 2 0]
                              [1 1 2 0]
-                             [1 1 2 0]] :right)) 
+                             [1 1 2 0]] :right))
            [[0 0 2 2]
             [0 0 2 2]
             [0 0 2 2]
@@ -343,7 +343,7 @@
     (is (= (do (move-pieces [[1 1 2 0]
                              [1 1 2 0]
                              [1 1 2 0]
-                             [1 1 2 0]] :up)) 
+                             [1 1 2 0]] :up))
            [[2 2 4 0]
             [2 2 4 0]
             [0 0 0 0]
@@ -355,7 +355,7 @@
     (is (= (do (move-pieces [[1 1 2 0]
                              [1 1 2 0]
                              [1 1 2 0]
-                             [1 1 2 0]] :down)) 
+                             [1 1 2 0]] :down))
            [[0 0 0 0]
             [0 0 0 0]
             [2 2 4 0]
@@ -367,11 +367,11 @@
     (is (= (do (play-sequence [[1 1 2 0]
                                [1 1 2 0]
                                [1 1 2 0]
-                               [1 1 2 0]] [:left :left :up :up])) 
+                               [1 1 2 0]] [:left :left :up :up]))
            [[16 0 0 0]
-            [ 0 0 0 0]
-            [ 0 0 0 0]
-            [ 0 0 0 0]]))))
+            [0 0 0 0]
+            [0 0 0 0]
+            [0 0 0 0]]))))
 
 
 (deftest neighbors-test-0
@@ -379,7 +379,7 @@
     (is (= (do (neighbors [[1 2 3 4]
                            [5 6 7 8]
                            [9 10 11 12]
-                           [13 14 15 16]] 3 3)) 
+                           [13 14 15 16]] 3 3))
            '(15 12)))))
 
 
@@ -388,7 +388,7 @@
     (is (= (do (neighbors [[1 2 3 4]
                            [5 6 7 8]
                            [9 10 11 12]
-                           [13 14 15 16]] 0 0)) 
+                           [13 14 15 16]] 0 0))
            '(2 5)))))
 
 
@@ -397,7 +397,7 @@
     (is (= (do (neighbors [[1 2 3 4]
                            [5 6 7 8]
                            [9 10 11 12]
-                           [13 14 15 16]] 0 2)) 
+                           [13 14 15 16]] 0 2))
            '(2 4 7)))))
 
 
@@ -406,7 +406,7 @@
     (is (= (do (neighbors [[1 2 3 4]
                            [5 6 7 8]
                            [9 10 11 12]
-                           [13 14 15 16]] 2 2)) 
+                           [13 14 15 16]] 2 2))
            '(10 12 7 15)))))
 
 

@@ -1,4 +1,4 @@
-(ns ai2048.core  
+(ns ai2048.core
   (:require [ai2048.play :as play]
             [ai2048.board :as board])
   (:gen-class))
@@ -11,8 +11,8 @@
   (println "Get ready!")
   (println "GO!")
   (time (
-         try (
-              nth (iterate play/play-smartly (board/new-board)) 4000) 
-         (
-          catch Exception e (
-                             println (.getMessage e))))))
+          try (
+                nth (iterate play/play-smartly (board/new-board)) 4000)
+              (
+                catch Exception e (
+                                    println (.getMessage e))))))

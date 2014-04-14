@@ -5,78 +5,78 @@
 
 (deftest power-test-0
   (testing "FIXME, I fail."
-    (is (= (power 2 0) 
+    (is (= (power 2 0)
            0))))
 
 (deftest power-test-1
   (testing "FIXME, I fail."
-    (is (= (power 2 4) 
+    (is (= (power 2 4)
            16))))
 
 (deftest power-test-2
   (testing "FIXME, I fail."
-    (is (= (power 0 4) 
+    (is (= (power 0 4)
            1))))
 
 (deftest abs-test-0
   (testing "FIXME, I fail."
-    (is (= (abs 4) 
+    (is (= (abs 4)
            4))))
 
 (deftest abs-test-1
   (testing "FIXME, I fail."
-    (is (= (abs 0) 
+    (is (= (abs 0)
            0))))
 
 (deftest abs-test-2
   (testing "FIXME, I fail."
-    (is (= (abs 4) 
+    (is (= (abs 4)
            4))))
 
 (deftest abs-test-2
   (testing "FIXME, I fail."
-    (is (= (abs -4) 
+    (is (= (abs -4)
            4))))
 
 
 (deftest manhattan-distance-test-0
   (testing "FIXME, I fail."
-    (is (= (manhattan-distance {:x 0 :y 0} {:x 0 :y 0} ) 
+    (is (= (manhattan-distance {:x 0 :y 0} {:x 0 :y 0})
            0))))
 
 (deftest manhattan-distance-test-1
   (testing "FIXME, I fail."
-    (is (= (manhattan-distance {:x 1 :y 0} {:x 0 :y 0} ) 
+    (is (= (manhattan-distance {:x 1 :y 0} {:x 0 :y 0})
            1))))
 
 (deftest manhattan-distance-test-2
   (testing "FIXME, I fail."
-    (is (= (manhattan-distance {:x 1 :y 1} {:x 0 :y 0} ) 
+    (is (= (manhattan-distance {:x 1 :y 1} {:x 0 :y 0})
            2))))
 
 (deftest manhattan-distance-test-3
   (testing "FIXME, I fail."
-    (is (= (manhattan-distance {:x 1 :y 0} {:x 0 :y 1} ) 
+    (is (= (manhattan-distance {:x 1 :y 0} {:x 0 :y 1})
            2))))
 
 (deftest mean-test-0
   (testing "FIXME, I fail."
-    (is (= (mean [-4 4]) 
+    (is (= (mean [-4 4])
            0))))
 
 (deftest mean-test-1
   (testing "FIXME, I fail."
-    (is (= (mean []) 
+    (is (= (mean [])
            0))))
 
 (deftest mean-test-2
   (testing "FIXME, I fail."
-    (is (= (mean [4 4]) 
+    (is (= (mean [4 4])
            4))))
 
 (deftest mean-test-3
   (testing "FIXME, I fail."
-    (is (= (mean [1 2 3]) 
+    (is (= (mean [1 2 3])
            2))))
 
 (deftest fmap-test-0
