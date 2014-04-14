@@ -84,3 +84,7 @@
     (is (= (fmap (fn [k v] {v k}) {1 2 3 4})
            '({4 3} {2 1})))))
 
+(deftest fmap-test-1
+  (testing "FIXME, I fail."
+    (is (= (fmap (fn [k v] {v k}) [])
+           '()))))

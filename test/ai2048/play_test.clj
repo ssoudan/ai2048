@@ -38,7 +38,7 @@
 
 (deftest payoff-fn-test-0
   (testing "FIXME, I fail."
-    (is (= (payoff-fn [[0 0 0 0] [0 8 0 16] [4 4 32 2] [4 8 32 32]]) 24))))
+    (is (= (payoff-fn [[0 0 0 0] [0 8 0 16] [4 4 32 2] [4 8 32 32]]) 0))))
 
 (deftest payoff-fn-test-1
   (testing "FIXME, I fail."
@@ -50,10 +50,9 @@
     (let [options (options-move [[0 0 0 0] [2 0 0 0] [8 0 0 0] [8 4 0 2]])]
     (is (= (sort-by #(:direction %) options)
            (sort-by #(:direction %) '({:board [[0 0 0 0] [0 0 0 0] [2 0 0 0] [16 4 0 2]], :score 0N, :direction :down} 
-             {:board [[0 0 0 0] [2 0 0 0] [8 0 0 0] [8 4 2 0]], :score 11/4, :direction :left} 
-             {:board [[0 0 0 0] [0 0 0 2] [0 0 0 8] [0 8 4 2]], :score 0N, :direction :right} 
-             {:board [[2 4 0 2] [16 0 0 0] [0 0 0 0] [0 0 0 0]], :score 207N, :direction :up}))
-)))))
+                                      {:board [[0 0 0 0] [2 0 0 0] [8 0 0 0] [8 4 2 0]], :score 0N, :direction :left} 
+                                      {:board [[0 0 0 0] [0 0 0 2] [0 0 0 8] [0 8 4 2]], :score 0N, :direction :right} 
+                                      {:board [[2 4 0 2] [16 0 0 0] [0 0 0 0] [0 0 0 0]], :score 18N, :direction :up})))))))
 
 (deftest make-options-test
   (testing "FIXME, I fail."
@@ -75,7 +74,7 @@
 (deftest minimax-test
   (testing "FIXME, I fail."
     (is (= (minimax (build 1000 [[0 8 0 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]]))
-           {:right {:mean 151.56927083333332, :max 630N, :min 0N, :options-count 116}, :left {:mean 207.81979166666667, :max 630N, :min 0, :options-count 116}, :down {:mean 197.90533234126985, :max 2471/4, :min 0N, :options-count 544}, :up {:mean 325.28633432539687, :max 4515/4, :min 0N, :options-count 640}}
+           {:right {:mean 490.0, :max 490N, :min 490N, :options-count 116}, :left {:mean 490.0, :max 490N, :min 490N, :options-count 116}, :down {:mean 399.98611111111114, :max 616N, :min 123N, :options-count 544}, :up {:mean 703.1666666666666, :max 800N, :min 582N, :options-count 640}}
 ))))
 
 (deftest optimal-minimax-move-test
@@ -89,5 +88,5 @@
 
 (deftest play-smartly-test
   (testing "FIXME, I fail."
-    (is (= (board/get-element (nth (iterate play-smartly board/test-board) 1) 0 1)  
-           4))))
+    (is (= (board/get-element (nth (iterate play-smartly board/test-board) 1) 0 3)  
+           2))))
