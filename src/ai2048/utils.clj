@@ -31,5 +31,5 @@
   [f m]
   (into () (for [[k v] m] (f k v))))
 
-; (fmap (fn [k v] {v k}) {1 2 3 4})
-   
+; (fmap (fn [k v] {v k}) {1 3 3 4})
+

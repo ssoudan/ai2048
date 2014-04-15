@@ -38,7 +38,7 @@
 
 (deftest payoff-fn-test-0
   (testing "FIXME, I fail."
-    (is (= (payoff-fn [[0 0 0 0] [0 8 0 16] [4 4 32 2] [4 8 32 32]]) 0))))
+    (is (= (payoff-fn [[0 0 0 0] [0 8 0 16] [4 4 32 2] [4 8 32 32]]) 120))))
 
 (deftest payoff-fn-test-1
   (testing "FIXME, I fail."
@@ -49,10 +49,10 @@
   (testing "FIXME, I fail."
     (let [options (options-move [[0 0 0 0] [2 0 0 0] [8 0 0 0] [8 4 0 2]])]
       (is (= (sort-by #(:direction %) options)
-             (sort-by #(:direction %) '({:board [[0 0 0 0] [0 0 0 0] [2 0 0 0] [16 4 0 2]], :score 0N, :direction :down}
-                                        {:board [[0 0 0 0] [2 0 0 0] [8 0 0 0] [8 4 2 0]], :score 0N, :direction :left}
-                                        {:board [[0 0 0 0] [0 0 0 2] [0 0 0 8] [0 8 4 2]], :score 0N, :direction :right}
-                                        {:board [[2 4 0 2] [16 0 0 0] [0 0 0 0] [0 0 0 0]], :score 18N, :direction :up})))))))
+             (sort-by #(:direction %) '({:board [[0 0 0 0] [0 0 0 0] [2 0 0 0] [16 4 0 2]], :score 0N, :direction :down} 
+                                        {:board [[0 0 0 0] [2 0 0 0] [8 0 0 0] [8 4 2 0]], :score 11/4, :direction :left} 
+                                        {:board [[0 0 0 0] [0 0 0 2] [0 0 0 8] [0 8 4 2]], :score 11/4, :direction :right} 
+                                        {:board [[2 4 0 2] [16 0 0 0] [0 0 0 0] [0 0 0 0]], :score 372N, :direction :up})))))))
 
 (deftest make-options-test
   (testing "FIXME, I fail."
@@ -74,7 +74,10 @@
 (deftest minimax-test
   (testing "FIXME, I fail."
     (is (= (minimax (build 1000 [[0 8 0 16] [2 4 16 2] [2 4 8 16] [2 4 8 16]]))
-           {:right {:mean 490.0, :max 490N, :min 490N, :options-count 116}, :left {:mean 490.0, :max 490N, :min 490N, :options-count 116}, :down {:mean 399.98611111111114, :max 616N, :min 123N, :options-count 544}, :up {:mean 703.1666666666666, :max 800N, :min 582N, :options-count 640}}
+           {:right {:mean 5495.0, :max 5495N, :min 5495N, :options-count 116}, 
+            :left {:mean 5495.0, :max 5495N, :min 5495N, :options-count 116}, 
+            :down {:mean 4165.833333333333, :max 12341/2, :min 3279/2, :options-count 544}, 
+            :up {:mean 7044.398809523809, :max 8012N, :min 5829N, :options-count 640}}
            ))))
 
 (deftest optimal-minimax-move-test
@@ -85,6 +88,14 @@
                                   [2 4 8 16]])
            :up
            ))))
+
+(deftest score-test
+  (testing "FIXME, I fail."
+    (is (= (score [[128 4 0 0]
+                   [16 0 0 0]
+                   [4 0 0 0]
+                   [0 0 0 0]]) 
+           824.0 ))))
 
 (deftest play-smartly-test
   (testing "FIXME, I fail."
