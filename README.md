@@ -39,7 +39,7 @@ Well, if you are lucky enough to reach 2048, the program won't stop until it has
 But who care? it's a victory.
 
 Not implemented features:
-- [ ] real score 
+- [X] real score - approximated (some random new value can be 4 and thus generate a little bit less of profit)
 - [ ] integrate with the real game (unless you can share your score on facebook, that doesn't really count)
 - [ ] follow the rule that prevent you to move in a direction that would cause no change in the board
 - [ ] cost function can probably be optimized

@@ -359,6 +359,18 @@
 ;                        [2 4 8 16]
 ;                        [2 4 8 16]])
 
+;;
+;; Be able to compute the score (approximativaly seen the first value can be 4)
+;; (assuming the score accumulated for a single value v is (log(2,v)-1)*v)
+
+(defn score [board]
+  (reduce + (map #(if (< 2 %) (* % (- (/ (Math/log %) (Math/log 2)) 1)) 0) (flatten board))))
+
+; (score [[128 4 0 0]
+;         [16 0 0 0]
+;         [4 0 0 0]
+;         [0 0 0 0]])
+
 
 ;;
 ;;
@@ -373,6 +385,8 @@
 
     (println (str "move=" move))
 
+    (println (str "score=" (score board)))
+    
     (play-a-turn board move)))
 
 ;;  (nth
